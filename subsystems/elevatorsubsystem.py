@@ -40,12 +40,6 @@ class ElevatorSubsystem(commands2.Subsystem):
 
         self.encoder.setDistancePerPulse(1 / 360 * 2 * math.pi * 1.5)
 
-    def teleopPeriodic(self) -> None:
-        if self.joystick.getRawButtonPressed(2):
-            self.controller.setGoal(5)
-        elif self.joystick.getRawButtonPressed(3):
-            self.controller.setGoal(0)
-
         # Move to Command
         # Run controller and update motor output
         self.elevatorMotors.set(self.controller.calculate(self.encoder.getDistance()))

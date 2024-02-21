@@ -21,6 +21,7 @@ from commands.roll_out import PlaceNote
 from subsystems.can_drivesubsystem import DriveSubsystem
 from subsystems.can_launchersubsystem import LauncherSubsystem
 from subsystems.rollerclawsubsystem import ClawSubsystem
+from subsystems.elevatorsubsystem import ElevatorSubsystem
 
 # from subsystems.pwm_drivesubsystem import DriveSubsystem
 # from subsystems.pwm_launchersubsystem import LauncherSubsystem
@@ -47,9 +48,10 @@ class RobotContainer:
         self.drive = DriveSubsystem()
         self.launcher = LauncherSubsystem()
         self.claw = ClawSubsystem()
+        self.elevator = ElevatorSubsystem()
 
         self.configureButtonBindings()
-
+ 
         self.drive.setDefaultCommand(
             # A single-stick arcade command, with forward/backward controlled by the left fore
             # and aft, and rotation controlled by left and right
