@@ -44,23 +44,9 @@ kLauncherDelay = 1
 
 ### Elevator ###
 kLeftElevatorMotor = 7
-kRightElevatorMortor = 8
+kRightElevatorMotor = 8
 
-kEncoderAChannel = 0
-kEncoderBChannel = 1
-kHighGoalPosition = wpimath.units.feetToMeters(3)
-kLowGoalPosition = wpimath.units.feetToMeters(0)
-
-
-kCarriageMass = 4.5
-# kilograms
-
-# A 1.5in diameter drum has a radius of 0.75in, or 0.019in.
-kDrumRadius = 1.5 / 2.0 * 25.4 / 1000.0
-
-# Reduction between motors and encoder, as output over input. If the elevator spins slower than
-# the motors, this number should be greater than one.
-kElevatorGearing = 6.0
+kElevDt = 0.02
 
 ### Roller Claw ###
 kRollerClawMotor = 9
