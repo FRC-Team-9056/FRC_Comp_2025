@@ -65,6 +65,6 @@ kElevatorGearing = 6.0
 ### Roller Claw ###
 kRollerClawMotor = 9
 
-kClawCurrentLimit = 5
-kIntakeClawSpeed = -.3
-kOuttakeClawSpeed = .1
+kClawCurrentLimit = 10
+kIntakeClawSpeed = -1
+kOuttakeClawSpeed = 1
