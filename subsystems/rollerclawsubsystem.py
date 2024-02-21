@@ -14,11 +14,13 @@ class ClawSubsystem(commands2.Subsystem):
     def __init__(self) -> None:
         super().__init__()
         """The two motors of the launcher subsytem"""
-        self.claw = rev.CANSparkMax(
+        self.clawWheel = rev.CANSparkMax(
             constants.kRollerClawMotor, rev.CANSparkMax.MotorType.kBrushed
         )
 
-    def getIntakeCommand(self) -> commands2.Command:
+        self.clawWheel.setSmartCurrentLimit(constants.kClawCurrentLimit)
+
+    def getIntakeClawCommand(self) -> commands2.Command:
         """The startEnd helper method takes a method to call when the command is initialized and one to
         call when it ends"""
         return commands2.cmd.startEnd(
@@ -33,9 +35,9 @@ class ClawSubsystem(commands2.Subsystem):
  
     def setClawWheel(self, speed: float) -> None:
         """An accessor method to set the speed (technically the output percentage) of the launch wheel"""
-        self.ClawWheel.set(speed)
+        self.clawWheel.set(speed)
 
     def stop(self) -> None:
         """A helper method to stop both wheels. You could skip having a method like this and call the
         individual accessors with speed = 0 instead"""
-        self.ClawWheel.set(0)
+        self.clawWheel.set(0)
