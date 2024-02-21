@@ -29,3 +29,5 @@ This is the drivebase subsystem
 ####Launcher subsystem
 
 #### Elevator subsystem
+
+This describes the elevator subsystem.
