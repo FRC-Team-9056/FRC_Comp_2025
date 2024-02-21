@@ -88,15 +88,15 @@ class ElevatorSubsystem(commands2.Subsystem):
         )
 
         # An encoder set up to measure flywheel velocity in radians per second.
-        self.encoder = wpilib.Encoder(kEncoderAChannel, kEncoderBChannel)
+        self.encoder = wpilib.Encoder(constants.kEncoderAChannel, constants.kEncoderBChannel)
 
-        self.motor = wpilib.PWMSparkMax(kMotorPort)
+        self.motor = wpilib.PWMSparkMax(constants.kLeftElevatorMotor)
 
         # A joystick to read the trigger from.
         self.joystick = wpilib.Joystick(constants.kOperatorControllerPort)
 
         # Circumference = pi * d, so distance per click = pi * d / counts
-        self.encoder.setDistancePerPulse(math.tau * kDrumRadius / 4096)
+        self.encoder.setDistancePerPulse(math.tau * constants.kDrumRadius / 4096)
 
         # The robot's elevator
 
