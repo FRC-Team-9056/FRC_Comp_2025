@@ -17,19 +17,24 @@ This does not mean that **all** changes happen here. There are still functions a
 
 ## Robot Container
 This is where the robot is initialized, each subsystem is called and set-up, and commands are established. 
-The robot container is called in robot.py to run as directed
+The robot container is called in robot.py to run. All the commands and subsystems are defined in here.
 
 ### Subsystems
 #### Claw
-This is the roller claw subsytem
+This is the roller claw subsystem
+
+The claw is a simple in and out command sturcture establishing a single brushed motor as an intake and out-take. The commands are on the a and b buttons on the motor controller.
 
 #### Drive
-This is the drivebase subsystem
+This is the drivebase subsystem. It is currently on the same controller as the operator buttons. We could switch around the driver and the other commands as needed but for now it is all just on one controller.
 
-####Launcher subsystem
+It is currently set up as a one stick arcade drive. We could switch this as needed. 
+
+#### Launcher subsystem
+This is the launcer subsystem that controls the intake and outtake of the note. It manages both a "feed wheel and a launch wheel.
 
 #### Elevator subsystem
 
 This describes the elevator subsystem.
 
-# Alex's Test
+Currently a work in progress.

@@ -22,81 +22,47 @@ class ElevatorSubsystem(commands2.Subsystem):
             constants.kLeftElevatorMotor, rev.CANSparkMax.MotorType.kBrushless
         )
         self.right = rev.CANSparkMax(
-            constants.kRightElevatorMortor, rev.CANSparkMax.MotorType.kBrushless
+            constants.kRightElevatorMotor, rev.CANSparkMax.MotorType.kBrushless
         )
 
         self.elevatorMotors = wpilib.MotorControllerGroup(self.left, self.right)
 
-        # Establishes elevator profile #
-        self.profile = wpimath.trajectory.TrapezoidProfile(
-            wpimath.trajectory.TrapezoidProfile.Constraints(
-                wpimath.units.feetToMeters(3.0),
-                wpimath.units.feetToMeters(6.0),  # Max elevator speed and acceleration.
-            )
+        self.kDt = constants.kElevDt
+
+        self.encoder = self.left.getEncoder()
+
+        # Create a PID controller whose setpoint's change is subject to maximum
+        # velocity and acceleration constraints.
+        self.Elevconstraints = wpimath.trajectory.TrapezoidProfile.Constraints(1.75, 0.75)
+        self.Elevcontroller = wpimath.controller.ProfiledPIDController(
+            1.3, 0, 0.7, self.Elevconstraints, self.kDt
         )
 
-        self.lastProfiledReference = wpimath.trajectory.TrapezoidProfile.State()
+        self.encoder.setDistancePerPulse(1 / 360 * 2 * math.pi * 1.5)
 
-        # The plant holds a state-space model of our elevator. This system has the following properties:
+        # Move to Command
+        # Run controller and update motor output
+        self.elevatorMotors.set(self.controller.calculate(self.encoder.getDistance()))
 
-        # States: [position, velocity], in meters and meters per second.
-        # Inputs (what we can "put in"): [voltage], in volts.
-        # Outputs (what we can measure): [position], in meters.
+    def Moveelevatorcommand(self) -> commands2.Command:
+        #this is the method for the elevator#
+        return commands2.cmd.startEnd(
+        #when this command is initialized, extend the elevator#
+        lambda: self.extendelevator(
+            constants.kElevDt
+        ),
+        #when this command is initialized, bring the elevator back#
+        lambda: self.reverseelevator(),
+        self,
+    ) 
 
-        # This elevator is driven by two NEO motors.
-        self.elevatorPlant = wpimath.system.plant.LinearSystemId.elevatorSystem(
-            wpimath.system.plant.DCMotor.NEO(2),
-            constants.kCarriageMass,
-            constants.kDrumRadius,
-            constants.kElevatorGearing,
-        )
+    def extendelevator(self, speed: float) -> None:
+        #an method to extend the elevator#
+        self.elevatorMotors.set(speed)
 
-        # The observer fuses our encoder data and voltage inputs to reject noise.
-        self.observer = wpimath.estimator.KalmanFilter_2_1_1(
-            self.elevatorPlant,
-            [
-                wpimath.units.inchesToMeters(2),
-                wpimath.units.inchesToMeters(40),
-            ],  # How accurate we think our model is, in meters and meters/second.
-            [
-                0.001
-            ],  # How accurate we think our encoder position data is. In this case we very highly trust our encoder position reading.
-            0.020,
-        )
+    def reverseelevator(self) -> None:
+        #undo(if I know I know)#
+        self.elevatorMotors.set(0)
 
-        # A LQR uses feedback to create voltage commands.
-        self.controller = wpimath.controller.LinearQuadraticRegulator_2_1(
-            self.elevatorPlant,
-            [
-                wpimath.units.inchesToMeters(1.0),
-                wpimath.units.inchesToMeters(10.0),
-            ],  # qelms. Position
-            # and velocity error tolerances, in meters and meters per second. Decrease this to more
-            # heavily penalize state excursion, or make the controller behave more aggressively. In
-            # this example we weight position much more highly than velocity, but this can be
-            # tuned to balance the two.
-            [12.0],  # relms. Control effort (voltage) tolerance. Decrease this to more
-            # heavily penalize control effort, or make the controller less aggressive. 12 is a good
-            # starting point because that is the (approximate) maximum voltage of a battery.
-            0.020,  # Nominal time between loops. 0.020 for TimedRobot, but can be
-            # lower if using notifiers.
-        )
 
-        # The state-space loop combines a controller, observer, feedforward and plant for easy control.
-        self.loop = wpimath.system.LinearSystemLoop_2_1_1(
-            self.elevatorPlant, self.controller, self.observer, 12.0, 0.020
-        )
-
-        # An encoder set up to measure flywheel velocity in radians per second.
-        self.encoder = wpilib.Encoder(constants.kEncoderAChannel, constants.kEncoderBChannel)
-
-        self.motor = wpilib.PWMSparkMax(constants.kLeftElevatorMotor)
-
-        # A joystick to read the trigger from.
-        self.joystick = wpilib.Joystick(constants.kOperatorControllerPort)
-
-        # Circumference = pi * d, so distance per click = pi * d / counts
-        self.encoder.setDistancePerPulse(math.tau * constants.kDrumRadius / 4096)
-
-        # The robot's elevator
 
