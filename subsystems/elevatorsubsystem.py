@@ -42,26 +42,29 @@ class ElevatorSubsystem(commands2.Subsystem):
 
         # Move to Command
         # Run controller and update motor output
-        self.elevatorMotors.set(self.controller.calculate(self.encoder.getDistance()))
+        # self.elevatorMotors.set(self.Elevcontroller.calculate(self.encoder.getDistance()))
 
     def Moveelevatorcommand(self) -> commands2.Command:
         #this is the method for the elevator#
         return commands2.cmd.startEnd(
         #when this command is initialized, extend the elevator#
-        lambda: self.extendelevator(
-            constants.kElevDt
+        lambda: self.elevatorin(
+            self.Elevcontroller.calculate(self.encoder.getDistance())
         ),
         #when this command is initialized, bring the elevator back#
-        lambda: self.reverseelevator(),
+        lambda: self.stop(),
         self,
     ) 
 
-    def extendelevator(self, speed: float) -> None:
+    def elevatorin(self, speed: float) -> None:
         #an method to extend the elevator#
         self.elevatorMotors.set(speed)
 
-    def reverseelevator(self) -> None:
+    def elevatorout(self, speed: float) -> None:
         #undo(if I know I know)#
+        self.elevatorMotors.set(-speed)
+
+    def stop(self) -> None:
         self.elevatorMotors.set(0)
 
 

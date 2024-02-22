@@ -17,6 +17,8 @@ from commands.launchnote import LaunchNote
 from commands.preparelaunch import PrepareLaunch
 from commands.roll_in import GrabNote
 from commands.roll_out import PlaceNote
+from commands.climb import Elevatorin
+from commands.handsintheair import Elevatorout
 
 from subsystems.can_drivesubsystem import DriveSubsystem
 from subsystems.can_launchersubsystem import LauncherSubsystem
@@ -64,6 +66,7 @@ class RobotContainer:
             )
         )
 
+
     def configureButtonBindings(self):
         ### Launcher ###
         # Intake #
@@ -87,14 +90,21 @@ class RobotContainer:
         self.operatorController.b().whileTrue(
             PlaceNote(self.claw)
             .handleInterrupt(lambda: self.claw.stop)
-            )
+        )
 
         ### Elevator ###
         # Climb #
         #self.operatorController.x().whileTrue()
-
+        self.operatorController.x().whileTrue(
+            Elevatorin(self.elevator)
+            .handleInterrupt(lambda: self.elevator.stop)
+        )
         # Decend #
         #self.operatorController.y().whileTrue()
+        self.operatorController.y().whiletrue(
+            Elevatorout(self.elevator)
+            .handleInterrupt(lambda: self.elevator.stop)
+        )
 
     def getAutonomousCommand(self) -> commands2.Command:
         return Autos.exampleAuto(self.drive)

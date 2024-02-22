@@ -6,22 +6,22 @@
 
 import commands2
 import constants
+from subsystems import elevatorsubsystem
 
-from subsystems.rollerclawsubsystem import ClawSubsystem
 #from subsystems.pwm_launchersubsystem import LauncherSubsystem
 
 
-class GrabNote(commands2.Command):
-    def __init__(self, claw: ClawSubsystem) -> None:
+class Elevatorin (commands2.Command):
+    def __init__(self, elevator: elevatorsubsystem) -> None:
         super().__init__()
-        self.claw = claw
-        self.addRequirements(claw)
+        self.elevator = elevator
+        self.addRequirements(elevator)
 
     def initialize(self) -> None:
-        self.claw.setClawWheel(constants.kIntakeClawSpeed)
+        self.elevator.elevatorin (constants.kElevDt)
 
     def isFinished(self) -> bool:
         return False
 
     def end(self, interrupted: bool) -> None:
-        self.claw.stop()
+        self.elevator.stop()
