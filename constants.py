@@ -43,13 +43,13 @@ kIntakeFeederSpeed = -0.2
 kLauncherDelay = 1
 
 ### Elevator ###
-kLeftElevatorMotor = 7
-kRightElevatorMotor = 8
+kLeftElevatorMotor = 8
+kRightElevatorMotor = 9
 
 kElevDt = 0.02
 
 ### Roller Claw ###
-kRollerClawMotor = 9
+kRollerClawMotor = 7
 
 kClawCurrentLimit = 10
 kIntakeClawSpeed = -1

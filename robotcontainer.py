@@ -81,13 +81,13 @@ class RobotContainer:
 
         ### Roller Claw ###
         # Intake #
-        self.operatorController.a().whileTrue(
+        self.operatorController.y().whileTrue(
             GrabNote(self.claw)
             .handleInterrupt(lambda: self.claw.stop)
         )
 
         # Release #
-        self.operatorController.b().whileTrue(
+        self.operatorController.x().whileTrue(
             PlaceNote(self.claw)
             .handleInterrupt(lambda: self.claw.stop)
         )
@@ -95,13 +95,13 @@ class RobotContainer:
         ### Elevator ###
         # Climb #
         #self.operatorController.x().whileTrue()
-        self.operatorController.x().whileTrue(
+        self.operatorController.a().whileTrue(
             Elevatorin(self.elevator)
             .handleInterrupt(lambda: self.elevator.stop)
         )
         # Decend #
         #self.operatorController.y().whileTrue()
-        self.operatorController.y().whiletrue(
+        self.operatorController.b().whileTrue(
             Elevatorout(self.elevator)
             .handleInterrupt(lambda: self.elevator.stop)
         )
