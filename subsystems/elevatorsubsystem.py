@@ -38,7 +38,7 @@ class ElevatorSubsystem(commands2.Subsystem):
             1.3, 0, 0.7, self.Elevconstraints, self.kDt
         )
 
-        self.encoder.setPosition(1 / 360 * 2 * math.pi * 1.5)
+        #self.encoder.setPosition(1 / 360 * 2 * math.pi * 1.5)
 
         # Move to Command
         # Run controller and update motor output

@@ -39,14 +39,14 @@ kFeedCurrentLimit = 80
 kLauncherSpeed = 1          
 kLaunchFeederSpeed = 1
 kIntakeLauncherSpeed = -1
-kIntakeFeederSpeed = -0.2
-kLauncherDelay = 1
+kIntakeFeederSpeed = -1
+kLauncherDelay = 100
 
 ### Elevator ###
 kLeftElevatorMotor = 8
 kRightElevatorMotor = 9
 
-kElevDt = 0.02
+kElevDt = 1
 
 ### Roller Claw ###
 kRollerClawMotor = 7

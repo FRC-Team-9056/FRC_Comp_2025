@@ -58,9 +58,9 @@ class RobotContainer:
             # A single-stick arcade command, with forward/backward controlled by the left fore
             # and aft, and rotation controlled by left and right
             commands2.cmd.run(
-                lambda: self.drive.arcadeDrive(
+                lambda: self.drive.tankDrive(
                     -self.driverController.getLeftY(),
-                    -self.driverController.getLeftX(),
+                    -self.driverController.getRightY(),
                 ),
                 self.drive,
             )
@@ -81,13 +81,13 @@ class RobotContainer:
 
         ### Roller Claw ###
         # Intake #
-        self.operatorController.y().whileTrue(
+        self.operatorController.a().whileTrue(
             GrabNote(self.claw)
             .handleInterrupt(lambda: self.claw.stop)
         )
 
         # Release #
-        self.operatorController.x().whileTrue(
+        self.operatorController.b().whileTrue(
             PlaceNote(self.claw)
             .handleInterrupt(lambda: self.claw.stop)
         )
@@ -95,13 +95,13 @@ class RobotContainer:
         ### Elevator ###
         # Climb #
         #self.operatorController.x().whileTrue()
-        self.operatorController.a().whileTrue(
+        self.operatorController.x().whileTrue(
             Elevatorin(self.elevator)
             .handleInterrupt(lambda: self.elevator.stop)
         )
         # Decend #
         #self.operatorController.y().whileTrue()
-        self.operatorController.b().whileTrue(
+        self.operatorController.y().whileTrue(
             Elevatorout(self.elevator)
             .handleInterrupt(lambda: self.elevator.stop)
         )
