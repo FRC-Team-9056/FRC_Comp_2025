@@ -36,7 +36,7 @@ kLauncherMotor = 6
 kLauncherCurrentLimit = 80
 kFeedCurrentLimit = 80
 
-kLauncherSpeed = 1
+kLauncherSpeed = 1          
 kLaunchFeederSpeed = 1
 kIntakeLauncherSpeed = -1
 kIntakeFeederSpeed = -0.2
