@@ -39,6 +39,7 @@ class RobotContainer:
     """
 
     def __init__(self) -> None:
+        filter = SlewRateLimiter(constants.kDriveSlewRate)
         # The driver's controller
         self.driverController = commands2.button.CommandXboxController(
             constants.kDriverControllerPort
@@ -107,4 +108,6 @@ class RobotContainer:
             Elevatorout(self.elevator)
             .handleInterrupt(lambda: self.elevator.stop)
         )
-}?"
+
+    def getAutonomousCommand(self) -> commands2.Command:
+    return Autos.exampleAuto()
