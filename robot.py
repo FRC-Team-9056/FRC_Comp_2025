@@ -10,6 +10,7 @@ import wpilib
 import commands2
 
 from robotcontainer import RobotContainer
+#from wpilib import SmartDashboard
 
 
 class MyRobot(commands2.TimedCommandRobot):
@@ -20,7 +21,14 @@ class MyRobot(commands2.TimedCommandRobot):
     has an implementation of robotPeriodic which runs the scheduler for you
     """
 
-    autonomousCommand: typing.Optional[commands2.Command] = None
+    #autonomousCommand: typing.Optional[commands2.Command] = None
+    #self.chooser.setDefaultOption("Default Auto", self.defaultAuto)
+    #self.chooser.addOption("My Auto", self.customAuto)
+    #SmartDashboard.putData("Auto choices", self.chooser)
+
+    #self.defaultAuto = "Default"
+    #self.customAuto = "My Auto";
+    #self.chooser = wpilib.SendableChooser()
 
     def robotInit(self) -> None:
         """
@@ -31,6 +39,7 @@ class MyRobot(commands2.TimedCommandRobot):
         # Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         # autonomous chooser on the dashboard.
         self.container = RobotContainer()
+        #self.autonomousCommand = self.container.getAutonomousCommand()
 
     def disabledInit(self) -> None:
         """This function is called once each time the robot enters Disabled mode."""
@@ -40,10 +49,8 @@ class MyRobot(commands2.TimedCommandRobot):
 
     def autonomousInit(self) -> None:
         """This autonomous runs the autonomous command selected by your RobotContainer class."""
-        self.autonomousCommand = self.container.getAutonomousCommand()
-
-        if self.autonomousCommand:
-            self.autonomousCommand.schedule()
+        #if self.autonomousCommand:
+        #    self.autonomousCommand.schedule()
 
     def autonomousPeriodic(self) -> None:
         """This function is called periodically during autonomous"""
@@ -53,9 +60,10 @@ class MyRobot(commands2.TimedCommandRobot):
         # teleop starts running. If you want the autonomous to
         # continue until interrupted by another command, remove
         # this line or comment it out.
-        if self.autonomousCommand:
-            self.autonomousCommand.cancel()
-
+        #if self.autonomousCommand:
+        #    self.autonomousCommand.cancel()
+        pass
+    
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""
 

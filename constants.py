@@ -29,6 +29,7 @@ kRightMotor1Port = 3
 kRightMotor2Port = 4
 
 kDTCurrentLimit = 60
+kDriveSlewRate = 1
 
 ### Launcher ###
 kFeederMotor = 5

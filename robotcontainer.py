@@ -6,6 +6,7 @@
 
 import wpilib
 from wpilib.interfaces import GenericHID
+from wpimath.filter import SlewRateLimiter
 
 import commands2
 import commands2.button
@@ -55,8 +56,9 @@ class RobotContainer:
         self.configureButtonBindings()
  
         self.drive.setDefaultCommand(
-            # A single-stick arcade command, with forward/backward controlled by the left fore
-            # and aft, and rotation controlled by left and right
+            # A double stick-stick trank command, with forward/backward controlled on the left fore
+            # and aft, and right controlled by fore and aft
+
             commands2.cmd.run(
                 lambda: self.drive.tankDrive(
                     -self.driverController.getLeftY(),
@@ -70,14 +72,14 @@ class RobotContainer:
     def configureButtonBindings(self):
         ### Launcher ###
         # Intake #
-        self.operatorController.rightBumper().whileTrue(
+        self.operatorController.leftBumper().whileTrue(
             PrepareLaunch(self.launcher)
             .withTimeout(constants.kLauncherDelay)
             .andThen(LaunchNote(self.launcher))
             .handleInterrupt(lambda: self.launcher.stop())
         )
         # Launch #
-        self.operatorController.leftBumper().whileTrue(self.launcher.getIntakeCommand())
+        self.operatorController.rightBumper().whileTrue(self.launcher.getIntakeCommand())
 
         ### Roller Claw ###
         # Intake #
@@ -105,6 +107,4 @@ class RobotContainer:
             Elevatorout(self.elevator)
             .handleInterrupt(lambda: self.elevator.stop)
         )
-
-    def getAutonomousCommand(self) -> commands2.Command:
-        return Autos.exampleAuto(self.drive)
+}?"

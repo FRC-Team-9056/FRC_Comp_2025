@@ -7,6 +7,7 @@
 import commands2
 import wpilib
 import wpilib.drive
+import math
 import rev
 
 import constants
@@ -52,4 +53,7 @@ class DriveSubsystem(commands2.Subsystem):
         :param fwd: the commanded forward movement
         :param rot: the commanded rotation
         """
-        self.drive.tankDrive(left, right)
+        left_2 = math.copysign(left * left, left)
+        right_2 = math.copysign(right * right, right)
+
+        self.drive.tankDrive(left_2,right_2)
