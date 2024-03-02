@@ -53,6 +53,7 @@ class DriveSubsystem(commands2.Subsystem):
         :param fwd: the commanded forward movement
         :param rot: the commanded rotation
         """
+        # the following squares the motor inputs for the controller
         left_2 = math.copysign(left * left, left)
         right_2 = math.copysign(right * right, right)
 

@@ -40,6 +40,7 @@ class MyRobot(commands2.TimedCommandRobot):
         # autonomous chooser on the dashboard.
         self.container = RobotContainer()
         #self.autonomousCommand = self.container.getAutonomousCommand()
+        self.timer = wpilib.Timer()
 
     def disabledInit(self) -> None:
         """This function is called once each time the robot enters Disabled mode."""
@@ -51,19 +52,24 @@ class MyRobot(commands2.TimedCommandRobot):
         """This autonomous runs the autonomous command selected by your RobotContainer class."""
         #if self.autonomousCommand:
         #    self.autonomousCommand.schedule()
+        self.timer.restart()
 
     def autonomousPeriodic(self) -> None:
         """This function is called periodically during autonomous"""
+        if self.timer.get() < 2.0:
+            self.container.drive.tankDrive(0.5, 0.5)
+        else:
+            self.container.drive.tankDrive(0.0,0.0)
 
     def teleopInit(self) -> None:
+        """This functtion is called to initiate teleop"""
         # This makes sure that the autonomous stops running when
         # teleop starts running. If you want the autonomous to
         # continue until interrupted by another command, remove
         # this line or comment it out.
         #if self.autonomousCommand:
         #    self.autonomousCommand.cancel()
-        pass
-    
+
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""
 
