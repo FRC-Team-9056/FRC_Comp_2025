@@ -57,6 +57,6 @@ kIntakeClawSpeed = -1
 kOuttakeClawSpeed = 1
 
 ### Autonomous ###
-kAutoDriveSpeed = -.6
-kAutoDriveTime = 5
+kAutoDriveSpeed = -.7
+kAutoDriveTime = 3
 kAutoLaunchTime = 2
