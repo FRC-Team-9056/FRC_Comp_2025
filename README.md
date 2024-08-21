@@ -1,5 +1,5 @@
-# FRC_Comp_2024
-Code for the Kitbot in 2024
+# FRC_Comp_2025
+Code for The 2025 Season
 
 # To use this repository please follow the directions below:
 https://www.taniarascia.com/getting-started-with-git/
