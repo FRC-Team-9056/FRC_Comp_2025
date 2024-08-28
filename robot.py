@@ -5,66 +5,61 @@
 # the WPILib BSD license file in the root directory of this project.
 #
 
-import typing
 import wpilib
-import commands2
+import wpimath
+import wpilib.drive
+import wpimath.filter
+import wpimath.controller
+import drivetrain
 
-from robotcontainer import RobotContainer
 
-
-class MyRobot(commands2.TimedCommandRobot):
-    """
-    Our default robot class, pass it to wpilib.run
-
-    Command v2 robots are encouraged to inherit from TimedCommandRobot, which
-    has an implementation of robotPeriodic which runs the scheduler for you
-    """
-    
-    autonomousCommand: typing.Optional[commands2.Command] = None
-
+class MyRobot(wpilib.TimedRobot):
     def robotInit(self) -> None:
-        """
-        This function is run when the robot is first started up and should be used for any
-        initialization code.
-        """
+        """Robot initialization function"""
+        self.controller = wpilib.XboxController(0)
+        self.swerve = drivetrain.Drivetrain()
 
-        # Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-        # autonomous chooser on the dashboard.
-        self.container = RobotContainer()
-
-    def disabledInit(self) -> None:
-        """This function is called once each time the robot enters Disabled mode."""
-
-    def disabledPeriodic(self) -> None:
-        """This function is called periodically when disabled"""
-
-    def autonomousInit(self) -> None:
-        """This autonomous runs the autonomous command selected by your RobotContainer class."""
-        self.autonomousCommand = self.container.getAutonomousCommand()
-
-        if self.autonomousCommand:
-            self.autonomousCommand.schedule()
+        # Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
+        self.xspeedLimiter = wpimath.filter.SlewRateLimiter(3)
+        self.yspeedLimiter = wpimath.filter.SlewRateLimiter(3)
+        self.rotLimiter = wpimath.filter.SlewRateLimiter(3)
 
     def autonomousPeriodic(self) -> None:
-        """This function is called periodically during autonomous"""
-
-    def teleopInit(self) -> None:
-        """This functtion is called to initiate teleop"""
-        # This makes sure that the autonomous stops running when
-        # teleop starts running. If you want the autonomous to
-        # continue until interrupted by another command, remove
-        # this line or comment it out.
-        if self.autonomousCommand:
-            self.autonomousCommand.cancel()
+        self.driveWithJoystick(False)
+        self.swerve.updateOdometry()
 
     def teleopPeriodic(self) -> None:
-        """This function is called periodically during operator control"""
+        self.driveWithJoystick(True)
 
-    def testInit(self) -> None:
-        """ This function is the test mode"""
-        # Cancels all running commands at the start of test mode
-        commands2.CommandScheduler.getInstance().cancelAll()
+    def driveWithJoystick(self, fieldRelative: bool) -> None:
+        # Get the x speed. We are inverting this because Xbox controllers return
+        # negative values when we push forward.
+        xSpeed = (
+            -self.xspeedLimiter.calculate(
+                wpimath.applyDeadband(self.controller.getLeftY(), 0.02)
+            )
+            * drivetrain.kMaxSpeed
+        )
 
+        # Get the y speed or sideways/strafe speed. We are inverting this because
+        # we want a positive value when we pull to the left. Xbox controllers
+        # return positive values when you pull to the right by default.
+        ySpeed = (
+            -self.yspeedLimiter.calculate(
+                wpimath.applyDeadband(self.controller.getLeftX(), 0.02)
+            )
+            * drivetrain.kMaxSpeed
+        )
 
-if __name__ == "__main__":
-    wpilib.run(MyRobot)
+        # Get the rate of angular rotation. We are inverting this because we want a
+        # positive value when we pull to the left (remember, CCW is positive in
+        # mathematics). Xbox controllers return positive values when you pull to
+        # the right by default.
+        rot = (
+            -self.rotLimiter.calculate(
+                wpimath.applyDeadband(self.controller.getRightX(), 0.02)
+            )
+            * drivetrain.kMaxSpeed
+        )
+
+        self.swerve.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
