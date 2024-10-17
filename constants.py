@@ -20,7 +20,7 @@ import wpimath.system.plant
 
 ### Operator Interface ###
 kDriverControllerPort = 0
-kOperatorControllerPort = 0
+kOperatorControllerPort = 1
 
 ### Drivetrain ###
 kLeftMotor1Port = 1
@@ -28,30 +28,12 @@ kLeftMotor2Port = 2
 kRightMotor1Port = 3
 kRightMotor2Port = 4
 
-kDTCurrentLimit = 60
-kDriveSlewRate = 1
+kMaxSpeed = 3.0  # 3 meters per second
+kMaxAngularSpeed = math.pi  # 1/2 rotation per second
+kWheelRadius = 0.0508
+kEncoderResolution = 4096
+kModuleMaxAngularVelocity = math.pi
+kModuleMaxAngularAcceleration = math.tau
 
-### Launcher ###
-kFeederMotor = 5
-kLauncherMotor = 6
-kLauncherCurrentLimit = 80
-kFeedCurrentLimit = 80
-
-kLauncherSpeed = 1          
-kLaunchFeederSpeed = 1
-kIntakeLauncherSpeed = -1
-kIntakeFeederSpeed = -1
-kLauncherDelay = 100
-
-### Elevator ###
-kLeftElevatorMotor = 8
-kRightElevatorMotor = 9
-
-kElevDt = 1
-
-### Roller Claw ###
-kRollerClawMotor = 7
-
-kClawCurrentLimit = 10
-kIntakeClawSpeed = -1
-kOuttakeClawSpeed = 1
+# Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
+kSlewRateLimiter = 3

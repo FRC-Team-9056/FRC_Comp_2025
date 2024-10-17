@@ -56,10 +56,6 @@ class MyRobot(commands2.TimedCommandRobot):
 
     def autonomousPeriodic(self) -> None:
         """This function is called periodically during autonomous"""
-        if self.timer.get() < 2.0:
-            self.container.drive.tankDrive(0.5, 0.5)
-        else:
-            self.container.drive.tankDrive(0.0,0.0)
 
     def teleopInit(self) -> None:
         """This functtion is called to initiate teleop"""

@@ -5,6 +5,7 @@
 #
 
 import wpilib
+import wpimath
 from wpilib.interfaces import GenericHID
 from wpimath.filter import SlewRateLimiter
 
@@ -13,21 +14,10 @@ import commands2.button
 
 import constants
 
-from commands.autos import Autos
-from commands.launchnote import LaunchNote
-from commands.preparelaunch import PrepareLaunch
-from commands.roll_in import GrabNote
-from commands.roll_out import PlaceNote
-from commands.climb import Elevatorin
-from commands.handsintheair import Elevatorout
+# import autonomous commands here
+#from commands.autos import Autos
 
-from subsystems.can_drivesubsystem import DriveSubsystem
-from subsystems.can_launchersubsystem import LauncherSubsystem
-from subsystems.rollerclawsubsystem import ClawSubsystem
-from subsystems.elevatorsubsystem import ElevatorSubsystem
-
-# from subsystems.pwm_drivesubsystem import DriveSubsystem
-# from subsystems.pwm_launchersubsystem import LauncherSubsystem
+from FRC_Comp_2025.subsystems.drivesubsystem import DriveSubsystem
 
 
 class RobotContainer:
@@ -39,8 +29,7 @@ class RobotContainer:
     """
 
     def __init__(self) -> None:
-        filter = SlewRateLimiter(constants.kDriveSlewRate)
-        # The driver's controller
+        """Robot initialization function"""
         self.driverController = commands2.button.CommandXboxController(
             constants.kDriverControllerPort
         )
@@ -48,66 +37,35 @@ class RobotContainer:
             constants.kOperatorControllerPort
         )
 
-        # The robot's subsystems
-        self.drive = DriveSubsystem()
-        self.launcher = LauncherSubsystem()
-        self.claw = ClawSubsystem()
-        self.elevator = ElevatorSubsystem()
+        self.swerve = DriveSubsystem()
 
-        self.configureButtonBindings()
- 
-        self.drive.setDefaultCommand(
-            # A double stick-stick trank command, with forward/backward controlled on the left fore
-            # and aft, and right controlled by fore and aft
+        self.swerve.setDefaultCommand(
+            # A double stick-stick swerve drive command. Set boolean below to make it field relative
 
             commands2.cmd.run(
-                lambda: self.drive.tankDrive(
-                    -self.driverController.getLeftY(),
-                    -self.driverController.getRightY(),
+                lambda: self.swerve.driveWithJoystick(
+                    self.driverController,
+                    True 
                 ),
-                self.drive,
+                self.swerve,
             )
         )
 
 
     def configureButtonBindings(self):
-        ### Launcher ###
+        ### Launcher Example from 2024###
         # Intake #
-        self.operatorController.leftBumper().whileTrue(
-            PrepareLaunch(self.launcher)
-            .withTimeout(constants.kLauncherDelay)
-            .andThen(LaunchNote(self.launcher))
-            .handleInterrupt(lambda: self.launcher.stop())
-        )
-        # Launch #
-        self.operatorController.rightBumper().whileTrue(self.launcher.getIntakeCommand())
-
-        ### Roller Claw ###
-        # Intake #
-        self.operatorController.a().whileTrue(
-            GrabNote(self.claw)
-            .handleInterrupt(lambda: self.claw.stop)
-        )
-
-        # Release #
-        self.operatorController.b().whileTrue(
-            PlaceNote(self.claw)
-            .handleInterrupt(lambda: self.claw.stop)
-        )
-
-        ### Elevator ###
-        # Climb #
-        #self.operatorController.x().whileTrue()
-        self.operatorController.x().whileTrue(
-            Elevatorin(self.elevator)
-            .handleInterrupt(lambda: self.elevator.stop)
-        )
-        # Decend #
-        #self.operatorController.y().whileTrue()
-        self.operatorController.y().whileTrue(
-            Elevatorout(self.elevator)
-            .handleInterrupt(lambda: self.elevator.stop)
-        )
+        #self.operatorController.leftBumper().whileTrue(
+        #    PrepareLaunch(self.launcher)
+        #    .withTimeout(constants.kLauncherDelay)
+        #    .andThen(LaunchNote(self.launcher))
+        #    .handleInterrupt(lambda: self.launcher.stop())
+        #)
+        ### Replace Pass with button bindings
+        pass
 
     def getAutonomousCommand(self) -> commands2.Command:
-        return Autos.exampleAuto()
+        #return Autos.exampleAuto()
+        # this is an example from last year of importing those commands replace pass
+        # with the default command
+        pass
