@@ -20,21 +20,12 @@ This is where the robot is initialized, each subsystem is called and set-up, and
 The robot container is called in robot.py to run. All the commands and subsystems are defined in here.
 
 ### Subsystems
-#### Claw
-This is the roller claw subsystem
+This section is where you set up the different moving components of the robot. It allows you to later structure commands that will use some or all of these subsystems and "schedule" them so that the components can work together in harmony. For example, you could structure a command that uses both the drive base, a launcher and a camera to find a target and hit it with an object. When you trigger that command, it will "schedule it" in the robots brain. The robot will then run through that command and be able to drive the base around until it is ready to launch, launch the object and then release the control of the robot back to the joysticks without having components of the  robot working against one another. 
 
-The claw is a simple in and out command sturcture establishing a single brushed motor as an intake and out-take. The commands are on the a and b buttons on the motor controller.
+This functionality is incredibly useful for higher level, semi-autonomous operation. (i.e. Hit a button and the robot can position itself to do something, do something, and then be ready for the next operation all within the same press of that button.) It is also useful for the autonomous period where all of the systems will have to be working together and have the potential to do find things. You could have the robot "search" "Pick up" "position" "Do thing" and back to "search" using all those subsystems effectively. 
 
 #### Drive
-This is the drivebase subsystem. It is currently on the same controller as the operator buttons. We could switch around the driver and the other commands as needed but for now it is all just on one controller.
+This is the drivebase subsystem. This is where you can change things related to the drive arcitecture. 
 
-It is currently set up as a one stick arcade drive. We could switch this as needed. 
-
-#### Launcher subsystem
-This is the launcer subsystem that controls the intake and outtake of the note. It manages both a "feed wheel and a launch wheel.
-
-#### Elevator subsystem
-
-This describes the elevator subsystem.
-
-Currently a work in progress.
+## Commands
+This is where the different operations for your robot are established
