@@ -3,143 +3,182 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 #
-
-import commands2
-import wpilib
-import wpilib.drive
-import math
-import rev
 import math
 import wpilib
-import wpimath.geometry
-import wpimath.kinematics
-import swervemodule
-import constants
+from wpilib import ADIS16470_IMU
+from wpimath.geometry import Rotation2d
+from wpimath.filter import SlewRateLimiter
+from wpimath.kinematics import ChassisSpeeds, SwerveDrive4Kinematics, SwerveDrive4Odometry, SwerveModuleState, SwerveModulePosition
+import commands2.subsystem as SubsystemBase
+from Constants import DriveConstants
+import utils.SwerveUtils as SwerveUtils
+from subsystems import MAXSwerveModule
 
-kMaxSpeed = constants.kMaxSpeed
-kMaxAngularSpeed = constants.kMaxAngularSpeed
+class DriveSubsystem(SubsystemBase):
+    def __init__(self):
+        # Initialize swerve modules
+        self.m_frontLeft = MAXSwerveModule(
+            DriveConstants.kFrontLeftDrivingCanId,
+            DriveConstants.kFrontLeftTurningCanId,
+            DriveConstants.kFrontLeftChassisAngularOffset)
 
-class DriveSubsystem(commands2.Subsystem):
-    """
-    Represents a swerve drive style drivetrain.
-    """
+        self.m_frontRight = MAXSwerveModule(
+            DriveConstants.kFrontRightDrivingCanId,
+            DriveConstants.kFrontRightTurningCanId,
+            DriveConstants.kFrontRightChassisAngularOffset)
 
-    def __init__(self) -> None:
-        self.frontLeftLocation = wpimath.geometry.Translation2d(0.381, 0.381)
-        self.frontRightLocation = wpimath.geometry.Translation2d(0.381, -0.381)
-        self.backLeftLocation = wpimath.geometry.Translation2d(-0.381, 0.381)
-        self.backRightLocation = wpimath.geometry.Translation2d(-0.381, -0.381)
+        self.m_rearLeft = MAXSwerveModule(
+            DriveConstants.kRearLeftDrivingCanId,
+            DriveConstants.kRearLeftTurningCanId,
+            DriveConstants.kBackLeftChassisAngularOffset)
 
-        self.frontLeft = swervemodule.SwerveModule(1, 2, 0, 1, 2, 3)
-        self.frontRight = swervemodule.SwerveModule(3, 4, 4, 5, 6, 7)
-        self.backLeft = swervemodule.SwerveModule(5, 6, 8, 9, 10, 11)
-        self.backRight = swervemodule.SwerveModule(7, 8, 12, 13, 14, 15)
+        self.m_rearRight = MAXSwerveModule(
+            DriveConstants.kRearRightDrivingCanId,
+            DriveConstants.kRearRightTurningCanId,
+            DriveConstants.kBackRightChassisAngularOffset)
 
-        self.gyro = wpilib.AnalogGyro(0)
+        # Gyro sensor (IMU)
+        self.m_gyro = ADIS16470_IMU()
 
-        self.kinematics = wpimath.kinematics.SwerveDrive4Kinematics(
-            self.frontLeftLocation,
-            self.frontRightLocation,
-            self.backLeftLocation,
-            self.backRightLocation,
+        # Slew rate limiter initialization
+        self.m_currentRotation = 0.0
+        self.m_currentTranslationDir = 0.0
+        self.m_currentTranslationMag = 0.0
+        self.m_magLimiter = SlewRateLimiter(DriveConstants.kMagnitudeSlewRate)
+        self.m_rotLimiter = SlewRateLimiter(DriveConstants.kRotationalSlewRate)
+        self.m_prevTime = wpilib.Timer.getFPGATimestamp()
+
+        # Odometry for tracking robot pose
+        self.m_odometry = SwerveDrive4Odometry(
+            DriveConstants.kDriveKinematics,
+            Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)),
+            [
+                self.m_frontLeft.getPosition(),
+                self.m_frontRight.getPosition(),
+                self.m_rearLeft.getPosition(),
+                self.m_rearRight.getPosition()
+            ])
+
+    def periodic(self):
+        # Update odometry
+        self.m_odometry.update(
+            Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)),
+            [
+                self.m_frontLeft.getPosition(),
+                self.m_frontRight.getPosition(),
+                self.m_rearLeft.getPosition(),
+                self.m_rearRight.getPosition()
+            ])
+
+    def getPose(self):
+        """Returns the current estimated pose of the robot."""
+        return self.m_odometry.getPoseMeters()
+
+    def resetOdometry(self, pose):
+        """Resets the odometry to the specified pose."""
+        self.m_odometry.resetPosition(
+            Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)),
+            [
+                self.m_frontLeft.getPosition(),
+                self.m_frontRight.getPosition(),
+                self.m_rearLeft.getPosition(),
+                self.m_rearRight.getPosition()
+            ],
+            pose
         )
 
-        self.odometry = wpimath.kinematics.SwerveDrive4Odometry(
-            self.kinematics,
-            self.gyro.getRotation2d(),
-            (
-                self.frontLeft.getPosition(),
-                self.frontRight.getPosition(),
-                self.backLeft.getPosition(),
-                self.backRight.getPosition(),
-            ),
-        )
+    def drive(self, xSpeed, ySpeed, rot, fieldRelative, rateLimit):
+        """Drives the robot based on joystick inputs."""
+        xSpeedCommanded = 0.0
+        ySpeedCommanded = 0.0
 
-        self.gyro.reset()
+        if rateLimit:
+            # Convert XY speeds to polar for rate limiting
+            inputTranslationDir = math.atan2(ySpeed, xSpeed)
+            inputTranslationMag = math.sqrt(xSpeed**2 + ySpeed**2)
 
-        # Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1. 
-        # Change in constants file
-        self.xspeedLimiter = wpimath.filter.SlewRateLimiter(constants.kSlewRateLimiter)
-        self.yspeedLimiter = wpimath.filter.SlewRateLimiter(constants.kSlewRateLimiter)
-        self.rotLimiter = wpimath.filter.SlewRateLimiter(constants.kSlewRateLimiter)
+            directionSlewRate = (abs(DriveConstants.kDirectionSlewRate / self.m_currentTranslationMag)
+                                 if self.m_currentTranslationMag != 0.0 else 500.0)
 
-    def drive(
-        self,
-        xSpeed: float,
-        ySpeed: float,
-        rot: float,
-        fieldRelative: bool,
-        periodSeconds: float,
-    ) -> None:
-        """
-        Method to drive the robot using joystick info.
-        :param xSpeed: Speed of the robot in the x direction (forward).
-        :param ySpeed: Speed of the robot in the y direction (sideways).
-        :param rot: Angular rate of the robot.
-        :param fieldRelative: Whether the provided x and y speeds are relative to the field.
-        :param periodSeconds: Time
-        """
-        swerveModuleStates = self.kinematics.toSwerveModuleStates(
-            wpimath.kinematics.ChassisSpeeds.discretize(
-                (
-                    wpimath.kinematics.ChassisSpeeds.fromFieldRelativeSpeeds(
-                        xSpeed, ySpeed, rot, self.gyro.getRotation2d()
-                    )
-                    if fieldRelative
-                    else wpimath.kinematics.ChassisSpeeds(xSpeed, ySpeed, rot)
-                ),
-                periodSeconds,
-            )
-        )
-        wpimath.kinematics.SwerveDrive4Kinematics.desaturateWheelSpeeds(
-            swerveModuleStates, kMaxSpeed
-        )
-        self.frontLeft.setDesiredState(swerveModuleStates[0])
-        self.frontRight.setDesiredState(swerveModuleStates[1])
-        self.backLeft.setDesiredState(swerveModuleStates[2])
-        self.backRight.setDesiredState(swerveModuleStates[3])
-    
-    def driveWithJoystick(self, driverController, fieldRelative: bool) -> None:
-        # Get the x speed. We are inverting this because Xbox controllers return
-        # negative values when we push forward.
-        xSpeed = (
-            -self.xspeedLimiter.calculate(
-                wpimath.applyDeadband(driverController.getLeftY(), 0.02)
-            )
-            * kMaxSpeed
-        )
+            currentTime = wpilib.Timer.getFPGATimestamp()
+            elapsedTime = currentTime - self.m_prevTime
+            angleDif = SwerveUtils.AngleDifference(inputTranslationDir, self.m_currentTranslationDir)
+            if angleDif < 0.45 * math.pi:
+                self.m_currentTranslationDir = SwerveUtils.StepTowardsCircular(
+                    self.m_currentTranslationDir, inputTranslationDir, directionSlewRate * elapsedTime)
+                self.m_currentTranslationMag = self.m_magLimiter.calculate(inputTranslationMag)
+            elif angleDif > 0.85 * math.pi:
+                if self.m_currentTranslationMag > 1e-4:
+                    self.m_currentTranslationMag = self.m_magLimiter.calculate(0.0)
+                else:
+                    self.m_currentTranslationDir = SwerveUtils.WrapAngle(self.m_currentTranslationDir + math.pi)
+                    self.m_currentTranslationMag = self.m_magLimiter.calculate(inputTranslationMag)
+            else:
+                self.m_currentTranslationDir = SwerveUtils.StepTowardsCircular(
+                    self.m_currentTranslationDir, inputTranslationDir, directionSlewRate * elapsedTime)
+                self.m_currentTranslationMag = self.m_magLimiter.calculate(0.0)
+            self.m_prevTime = currentTime
 
-        # Get the y speed or sideways/strafe speed. We are inverting this because
-        # we want a positive value when we pull to the left. Xbox controllers
-        # return positive values when you pull to the right by default.
-        ySpeed = (
-            -self.yspeedLimiter.calculate(
-                wpimath.applyDeadband(driverController.getLeftX(), 0.02)
-            )
-            * kMaxSpeed
-        )
+            xSpeedCommanded = self.m_currentTranslationMag * math.cos(self.m_currentTranslationDir)
+            ySpeedCommanded = self.m_currentTranslationMag * math.sin(self.m_currentTranslationDir)
+            self.m_currentRotation = self.m_rotLimiter.calculate(rot)
 
-        # Get the rate of angular rotation. We are inverting this because we want a
-        # positive value when we pull to the left (remember, CCW is positive in
-        # mathematics). Xbox controllers return positive values when you pull to
-        # the right by default.
-        rot = (
-            -self.rotLimiter.calculate(
-                wpimath.applyDeadband(driverController.getRightX(), 0.02)
-            )
-            * kMaxSpeed
-        )
+        else:
+            xSpeedCommanded = xSpeed
+            ySpeedCommanded = ySpeed
+            self.m_currentRotation = rot
 
-        self.drive(xSpeed, ySpeed, rot, fieldRelative, self.getPeriod())
+        # Convert the commanded speeds to the correct units
+        xSpeedDelivered = xSpeedCommanded * DriveConstants.kMaxSpeedMetersPerSecond
+        ySpeedDelivered = ySpeedCommanded * DriveConstants.kMaxSpeedMetersPerSecond
+        rotDelivered = self.m_currentRotation * DriveConstants.kMaxAngularSpeed
 
-    def updateOdometry(self) -> None:
-        """Updates the field relative position of the robot."""
-        self.odometry.update(
-            self.gyro.getRotation2d(),
-            (
-                self.frontLeft.getPosition(),
-                self.frontRight.getPosition(),
-                self.backLeft.getPosition(),
-                self.backRight.getPosition(),
-            ),
-        )
+        # Generate the swerve module states
+        swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                xSpeedDelivered, ySpeedDelivered, rotDelivered,
+                Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)))
+            if fieldRelative else ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered))
+
+        # Desaturate wheel speeds
+        SwerveDrive4Kinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond)
+
+        # Set the desired state for each swerve module
+        self.m_frontLeft.setDesiredState(swerveModuleStates[0])
+        self.m_frontRight.setDesiredState(swerveModuleStates[1])
+        self.m_rearLeft.setDesiredState(swerveModuleStates[2])
+        self.m_rearRight.setDesiredState(swerveModuleStates[3])
+
+    def setX(self):
+        """Sets the wheels into an X formation to prevent movement."""
+        self.m_frontLeft.setDesiredState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
+        self.m_frontRight.setDesiredState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
+        self.m_rearLeft.setDesiredState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
+        self.m_rearRight.setDesiredState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
+
+    def setModuleStates(self, desiredStates):
+        """Sets the swerve module states."""
+        SwerveDrive4Kinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.kMaxSpeedMetersPerSecond)
+        self.m_frontLeft.setDesiredState(desiredStates[0])
+        self.m_frontRight.setDesiredState(desiredStates[1])
+        self.m_rearLeft.setDesiredState(desiredStates[2])
+        self.m_rearRight.setDesiredState(desiredStates[3])
+
+    def resetEncoders(self):
+        """Resets the drive encoders."""
+        self.m_frontLeft.resetEncoders()
+        self.m_rearLeft.resetEncoders()
+        self.m_frontRight.resetEncoders()
+        self.m_rearRight.resetEncoders()
+
+    def zeroHeading(self):
+        """Zeroes the heading of the robot."""
+        self.m_gyro.reset()
+
+    def getHeading(self):
+        """Returns the heading of the robot in degrees."""
+        return Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)).getDegrees()
+
+    def getTurnRate(self):
+        """Returns the turn rate of the robot."""
+        return self.m_gyro.getRate(ADIS16470_IMU.IMUAxis)

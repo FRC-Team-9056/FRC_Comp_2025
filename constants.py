@@ -10,30 +10,105 @@
 #
 
 import math
-import wpilib
-import wpimath.controller
-import wpimath.estimator
-import wpimath.units
-import wpimath.trajectory
-import wpimath.system
-import wpimath.system.plant
+import rev
+from wpimath.geometry import Translation2d
+from wpimath.kinematics import SwerveDrive4Kinematics
+from wpimath.trajectory import TrapezoidProfile
+from math import Units
+import lib.PIDGains as PIDGains
+    
+class OIConstants: 
+        kDriverControllerPort = 0
+        kDriveDeadband = 0.05
+        kTriggerButtonThreshold = 0.5
 
-### Operator Interface ###
-kDriverControllerPort = 0
-kOperatorControllerPort = 1
+class NeoMotorConstants:
+        kFreeSpeedRpm = 5676
 
-### Drivetrain ###
-kLeftMotor1Port = 1
-kLeftMotor2Port = 2
-kRightMotor1Port = 3
-kRightMotor2Port = 4
+class DriveConstants:
+        kMaxSpeedMetersPerSecond = 4.8
+        kMaxAngularSpeed = 2 * math.pi  # radians per second
 
-kMaxSpeed = 3.0  # 3 meters per second
-kMaxAngularSpeed = math.pi  # 1/2 rotation per second
-kWheelRadius = 0.0508
-kEncoderResolution = 4096
-kModuleMaxAngularVelocity = math.pi
-kModuleMaxAngularAcceleration = math.tau
+        kDirectionSlewRate = 1.2  # radians per second
+        kMagnitudeSlewRate = 1.8  # percent per second (1 = 100%)
+        kRotationalSlewRate = 2.0  # percent per second (1 = 100%)
 
-# Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
-kSlewRateLimiter = 3
+        kTrackWidth = Units.inchesToMeters(21.5)
+        kWheelBase = Units.inchesToMeters(21.5)
+
+        kDriveKinematics = SwerveDrive4Kinematics(
+            Translation2d(kWheelBase / 2, kTrackWidth / 2),
+            Translation2d(kWheelBase / 2, -kTrackWidth / 2),
+            Translation2d(-kWheelBase / 2, kTrackWidth / 2),
+            Translation2d(-kWheelBase / 2, -kTrackWidth / 2)
+        )
+
+        kFrontLeftChassisAngularOffset = -math.pi / 2
+        kFrontRightChassisAngularOffset = 0
+        kBackLeftChassisAngularOffset = math.pi
+        kBackRightChassisAngularOffset = math.pi / 2
+
+        kFrontLeftDrivingCanId = 11
+        kRearLeftDrivingCanId = 13
+        kFrontRightDrivingCanId = 15
+        kRearRightDrivingCanId = 17
+
+        kFrontLeftTurningCanId = 10
+        kRearLeftTurningCanId = 12
+        kFrontRightTurningCanId = 14
+        kRearRightTurningCanId = 16
+
+        kGyroReversed = False
+
+class ModuleConstants:
+        kDrivingMotorPinionTeeth = 14
+        kTurningEncoderInverted = True
+
+        kDrivingMotorFreeSpeedRps = NeoMotorConstants.kFreeSpeedRpm / 60
+        kWheelDiameterMeters = 0.0762
+        kWheelCircumferenceMeters = kWheelDiameterMeters * math.pi
+        kDrivingMotorReduction = (45.0 * 22) / (kDrivingMotorPinionTeeth * 15)
+        kDriveWheelFreeSpeedRps = (kDrivingMotorFreeSpeedRps * kWheelCircumferenceMeters) / kDrivingMotorReduction
+
+        kDrivingEncoderPositionFactor = (kWheelDiameterMeters * math.pi) / kDrivingMotorReduction
+        kDrivingEncoderVelocityFactor = ((kWheelDiameterMeters * math.pi) / kDrivingMotorReduction) / 60.0
+
+        kTurningEncoderPositionFactor = (2 * math.pi)
+        kTurningEncoderVelocityFactor = (2 * math.pi) / 60.0
+
+        kTurningEncoderPositionPIDMinInput = 0  # radians
+        kTurningEncoderPositionPIDMaxInput = kTurningEncoderPositionFactor  # radians
+
+        kDrivingP = 0.04
+        kDrivingI = 0
+        kDrivingD = 0
+        kDrivingFF = 1 / kDriveWheelFreeSpeedRps
+        kDrivingMinOutput = -1
+        kDrivingMaxOutput = 1
+
+        kTurningP = 1
+        kTurningI = 0
+        kTurningD = 0
+        kTurningFF = 0
+        kTurningMinOutput = -1
+        kTurningMaxOutput = 1
+
+        kDrivingMotorIdleMode = 'Brake'
+        kTurningMotorIdleMode = 'Brake'
+
+        kDrivingMotorCurrentLimit = 50  # amps
+        kTurningMotorCurrentLimit = 20  # amps
+
+class AutoConstants:
+        kMaxSpeedMetersPerSecond = 3
+        kMaxAccelerationMetersPerSecondSquared = 3
+        kMaxAngularSpeedRadiansPerSecond = math.pi
+        kMaxAngularSpeedRadiansPerSecondSquared = math.pi
+
+        kPXController = 1
+        kPYController = 1
+        kPThetaController = 1
+
+        kThetaControllerConstraints = TrapezoidProfile.Constraints(
+            kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared
+        )
