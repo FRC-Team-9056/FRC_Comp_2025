@@ -17,7 +17,7 @@ import constants
 # import autonomous commands here
 #from commands.autos import Autos
 
-from FRC_Comp_2025.subsystems.drivesubsystem import DriveSubsystem
+from subsystems.drivesubsystem import DriveSubsystem
 
 
 class RobotContainer:
