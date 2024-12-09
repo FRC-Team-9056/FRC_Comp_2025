@@ -5,6 +5,7 @@
 #
 
 import math
+import rev
 import wpilib
 import wpimath.kinematics
 import wpimath.geometry
@@ -37,11 +38,11 @@ class SwerveModule:
         :param turningEncoderChannelA: DIO input for the turning encoder channel A
         :param turningEncoderChannelB: DIO input for the turning encoder channel B
         """
-        self.driveMotor = wpilib.CANparkMax(driveMotorChannel)
-        self.turningMotor = wpilib.CANSparkMax(turningMotorChannel)
+        self.driveMotor = rev.CANSparkMax(driveMotorChannel, rev.CANSparkLowLevel.MotorType.kBrushless)
+        self.turningMotor = rev.CANSparkMax(turningMotorChannel, rev.CANSparkLowLevel.MotorType.kBrushless)
 
-        self.driveEncoder = wpilib.Encoder(driveEncoderChannelA, driveEncoderChannelB)
-        self.turningEncoder = wpilib.Encoder(
+        self.driveEncoder = rev.CANSparkMax.getEncoder(driveEncoderChannelA, driveEncoderChannelB)
+        self.turningEncoder = rev.CANSparkMax.getEncoder(
             turningEncoderChannelA, turningEncoderChannelB
         )
 
