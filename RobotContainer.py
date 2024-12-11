@@ -12,7 +12,7 @@ from wpimath.trajectory import Trajectory, TrajectoryConfig, TrajectoryGenerator
 from wpimath.controller import PIDController, ProfiledPIDController
 import Constants
 from subsystems.DriveSubsystem import DriveSubsystem
-import utils.GamepadUtils as GamepadUtils
+from utils.GamepadUtils import GamepadUtils
 
 class RobotContainer:
     def __init__(self):
@@ -26,6 +26,7 @@ class RobotContainer:
         # self.configureButtonBindings()
 
         # Configure default commands
+
         self.m_robotDrive.setDefaultCommand(
             command.RunCommand(
                 lambda: self.m_robotDrive.drive(

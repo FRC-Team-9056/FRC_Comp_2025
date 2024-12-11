@@ -137,7 +137,7 @@ class DriveSubsystem(SubsystemBase):
         swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
             ChassisSpeeds.fromFieldRelativeSpeeds(
                 xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)))
+                Rotation2d.fromDegrees(self.m_gyro.getAngle()))
             if fieldRelative else ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered))
 
         # Desaturate wheel speeds
