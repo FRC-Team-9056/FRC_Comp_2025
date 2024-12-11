@@ -5,7 +5,7 @@
 #
 import math
 import wpilib
-from wpilib import ADIS16470_IMU
+from wpilib import ADIS16470_IMU, ADXRS450_Gyro
 from wpimath.geometry import Rotation2d
 from wpimath.filter import SlewRateLimiter
 from wpimath.kinematics import ChassisSpeeds, SwerveDrive4Kinematics, SwerveDrive4Odometry, SwerveModuleState, SwerveModulePosition
@@ -38,7 +38,7 @@ class DriveSubsystem(SubsystemBase):
             DriveConstants.kBackRightChassisAngularOffset)
 
         # Gyro sensor (IMU)
-        self.m_gyro = ADIS16470_IMU()
+        self.m_gyro = ADXRS450_Gyro()
 
         # Slew rate limiter initialization
         self.m_currentRotation = 0.0

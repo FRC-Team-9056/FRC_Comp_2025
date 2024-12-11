@@ -23,7 +23,7 @@ class RobotContainer:
         self.m_driverController = XboxController(Constants.OIConstants.kDriverControllerPort)
 
         # Configure the button bindings
-        self.configureButtonBindings()
+        # self.configureButtonBindings()
 
         # Configure default commands
         self.m_robotDrive.setDefaultCommand(

@@ -15,7 +15,8 @@ from wpimath.geometry import Translation2d
 from wpimath.kinematics import SwerveDrive4Kinematics
 from wpimath.trajectory import TrapezoidProfile
 from wpimath import units as Units
-import lib.PIDGains as PIDGains
+from rev import CANSparkBase as CANSparkBase
+import pidlib.PIDGains as PIDGains
     
 class OIConstants: 
         kDriverControllerPort = 0
@@ -93,8 +94,8 @@ class ModuleConstants:
         kTurningMinOutput = -1
         kTurningMaxOutput = 1
 
-        kDrivingMotorIdleMode = 'Brake'
-        kTurningMotorIdleMode = 'Brake'
+        kDrivingMotorIdleMode = CANSparkBase.IdleMode(1) #change the number "1" to "0" to change it to coast
+        kTurningMotorIdleMode = CANSparkBase.IdleMode(1) #change the number "1" to "0" to change it to coast
 
         kDrivingMotorCurrentLimit = 50  # amps
         kTurningMotorCurrentLimit = 20  # amps
