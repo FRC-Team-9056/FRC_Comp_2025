@@ -51,7 +51,7 @@ class DriveSubsystem(SubsystemBase):
         # Odometry for tracking robot pose
         self.m_odometry = SwerveDrive4Odometry(
             DriveConstants.kDriveKinematics,
-            Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)),
+            Rotation2d.fromDegrees(self.m_gyro.getAngle()),
             [
                 self.m_frontLeft.getPosition(),
                 self.m_frontRight.getPosition(),
@@ -62,7 +62,7 @@ class DriveSubsystem(SubsystemBase):
     def periodic(self):
         # Update odometry
         self.m_odometry.update(
-            Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)),
+            Rotation2d.fromDegrees(self.m_gyro.getAngle()),
             [
                 self.m_frontLeft.getPosition(),
                 self.m_frontRight.getPosition(),
@@ -77,7 +77,7 @@ class DriveSubsystem(SubsystemBase):
     def resetOdometry(self, pose):
         """Resets the odometry to the specified pose."""
         self.m_odometry.resetPosition(
-            Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)),
+            Rotation2d.fromDegrees(self.m_gyro.getAngle()),
             [
                 self.m_frontLeft.getPosition(),
                 self.m_frontRight.getPosition(),

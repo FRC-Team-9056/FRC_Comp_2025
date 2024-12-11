@@ -42,7 +42,7 @@ class RobotContainer:
             Constants.AutoConstants.kMaxSpeedMetersPerSecond,
             Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared
         ).setKinematics(Constants.DriveConstants.kDriveKinematics)
-
+        """
         # Example trajectory
         exampleTrajectory = TrajectoryGenerator.generateTrajectory(
             Pose2d(0, 0, Rotation2d(0)),
@@ -74,3 +74,4 @@ class RobotContainer:
 
         # Run path following command, then stop at the end
         return swerveControllerCommand.andThen(lambda: self.m_robotDrive.drive(0, 0, 0, False, False))
+        """
