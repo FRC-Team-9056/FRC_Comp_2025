@@ -92,15 +92,16 @@ class MAXSwerveModule:
     def setDesiredState(self, desiredState):
         # Apply chassis angular offset to the desired state
         correctedDesiredState = SwerveModuleState(desiredState.speed,
-                                                  desiredState.angle .plus(Rotation2d.fromRadians(self.m_chassisAngularOffset)))
+                                                  desiredState.angle + (Rotation2d.fromRotations(self.m_chassisAngularOffset)))
+                                                #the line above is sketchy...
 
         # Optimize the reference state to avoid turning more than 90 degrees
         optimizedDesiredState = SwerveModuleState.optimize(correctedDesiredState,
                                                            Rotation2d(self.m_turningEncoder.getPosition()))
 
         # Command the driving and turning SPARKS MAX towards their respective setpoints
-        self.m_drivingPIDController.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity)
-        self.m_turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition)
+        self.m_drivingPIDController.setReference(optimizedDesiredState.speed, CANSparkMax.ControlType.kVelocity)
+        self.m_turningPIDController.setReference(optimizedDesiredState.angle.radians(), CANSparkMax.ControlType.kPosition)
 
         # Save the desired state
         self.m_desiredState = desiredState
