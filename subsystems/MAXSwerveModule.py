@@ -91,8 +91,8 @@ class MAXSwerveModule:
 
     def setDesiredState(self, desiredState):
         # Apply chassis angular offset to the desired state
-        correctedDesiredState = SwerveModuleState(desiredState.speedMetersPerSecond,
-                                                  desiredState.angle.plus(Rotation2d.fromRadians(self.m_chassisAngularOffset)))
+        correctedDesiredState = SwerveModuleState(desiredState.speed,
+                                                  desiredState.angle.degrees(self.m_chassisAngularOffset))
 
         # Optimize the reference state to avoid turning more than 90 degrees
         optimizedDesiredState = SwerveModuleState.optimize(correctedDesiredState,
