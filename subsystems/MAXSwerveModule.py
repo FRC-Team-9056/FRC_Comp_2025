@@ -9,7 +9,7 @@ import math
 from rev import SparkMax, SparkLowLevel
 from wpimath.geometry import Rotation2d
 from wpimath.kinematics import SwerveModulePosition, SwerveModuleState
-import Configs
+from Configs import Configs
 
 
 class MAXSwerveModule:
@@ -24,8 +24,8 @@ class MAXSwerveModule:
         self.m_turning_closed_loop_controller = self.m_turning_spark.getClosedLoopController()
 
         # Apply the respective configurations to the SPARKS
-        self.m_driving_spark.configure(Configs.MAXSwerveModule.driving_config, SparkLowLevel.ResetMode.kResetSafeParameters, SparkLowLevel.PersistMode.kPersistParameters)
-        self.m_turning_spark.configure(Configs.MAXSwerveModule.turning_config, SparkLowLevel.ResetMode.kResetSafeParameters, SparkLowLevel.PersistMode.kPersistParameters)
+        self.m_driving_spark.configure(Configs.MAXSwerveModule.drivingConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters)
+        self.m_turning_spark.configure(Configs.MAXSwerveModule.turningConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters)
 
         self.m_chassis_angular_offset = chassis_angular_offset
         self.m_desired_state = SwerveModuleState(0.0, Rotation2d())
@@ -40,7 +40,7 @@ class MAXSwerveModule:
         """
         # Apply chassis angular offset to the encoder position to get the position relative to the chassis.
         return SwerveModuleState(self.m_driving_encoder.getVelocity(),
-                                 Rotation2d(self.m_turning_encoder.getPosition() - self.m_chassis_angular_offset))
+                                 Rotation2d.fromRotations(self.m_turning_encoder.getPosition()) - Rotation2d(self.m_chassis_angular_offset))
 
     def get_position(self):
         """
@@ -48,23 +48,24 @@ class MAXSwerveModule:
         """
         # Apply chassis angular offset to the encoder position to get the position relative to the chassis.
         return SwerveModulePosition(self.m_driving_encoder.getPosition(),
-                                    Rotation2d(self.m_turning_encoder.getPosition() - self.m_chassis_angular_offset))
+                                    Rotation2d.fromRotations(self.m_turning_encoder.getPosition()) - Rotation2d(self.m_chassis_angular_offset))
 
-    def set_desired_state(self, desired_state):
+    def set_desired_state(self, desired_state: SwerveModuleState):
         """
         Sets the desired state for the module.
         """
+
         # Apply chassis angular offset to the desired state.
         corrected_desired_state = SwerveModuleState()
-        corrected_desired_state.speedMetersPerSecond = desired_state.speedMetersPerSecond
-        corrected_desired_state.angle = desired_state.angle.plus(Rotation2d.fromRadians(self.m_chassis_angular_offset))
+        corrected_desired_state.speed = desired_state.speed
+        corrected_desired_state.angle = desired_state.angle + Rotation2d(self.m_chassis_angular_offset)
 
         # Optimize the reference state to avoid spinning further than 90 degrees.
-        corrected_desired_state.optimize(Rotation2d(self.m_turning_encoder.getPosition()))
+        corrected_desired_state.optimize(Rotation2d.fromRotations(self.m_turning_encoder.getPosition()))
 
         # Command driving and turning SPARKS towards their respective setpoints.
-        self.m_driving_closed_loop_controller.setReference(corrected_desired_state.speedMetersPerSecond, SparkLowLevel.ControlType.kVelocity)
-        self.m_turning_closed_loop_controller.setReference(corrected_desired_state.angle.getRadians(), SparkLowLevel.ControlType.kPosition)
+        self.m_driving_closed_loop_controller.setReference(corrected_desired_state.speed, SparkLowLevel.ControlType.kVelocity)
+        self.m_turning_closed_loop_controller.setReference(corrected_desired_state.angle, SparkLowLevel.ControlType.kPosition)
 
         self.m_desired_state = desired_state
 

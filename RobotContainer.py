@@ -10,9 +10,9 @@ from wpimath.geometry import Pose2d, Rotation2d, Translation2d
 from wpimath.trajectory import Trajectory, TrajectoryConfig, TrajectoryGenerator
 from wpilib import XboxController
 from commands2 import Command, RunCommand, SwerveControllerCommand
-from commands2 import JoystickButton
+from commands2.button import JoystickButton
 from Constants import AutoConstants, DriveConstants, OIConstants
-from subsystems import DriveSubsystem
+from subsystems.DriveSubsystem import DriveSubsystem
 
 class RobotContainer:
     def __init__(self):
@@ -42,7 +42,7 @@ class RobotContainer:
         return value if abs(value) > deadband else 0.0
 
     def configureButtonBindings(self):
-        JoystickButton(self.m_driverController, XboxController.Button.kR1.value).whileTrue(
+        JoystickButton(self.m_driverController, XboxController.Button.kRightStick).whileTrue(
             RunCommand(lambda: self.m_robotDrive.setX(), self.m_robotDrive)
         )
 
@@ -80,7 +80,7 @@ class RobotContainer:
         )
 
         # Reset odometry to the starting pose of the trajectory.
-        self.m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose())
+        self.m_robotDrive.resetOdometry(Trajectory.initialPose)
 
         # Run path following command, then stop at the end.
         return swerveControllerCommand.andThen(lambda: self.m_robotDrive.drive(0, 0, 0, False))

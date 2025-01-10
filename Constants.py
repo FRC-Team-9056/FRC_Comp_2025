@@ -1,8 +1,8 @@
 import math
 from wpimath.geometry import Translation2d
-from wpimath.kinematics import SwerveDrive2Kinematics
+from wpimath.kinematics import SwerveDrive4Kinematics
 from wpimath.trajectory import TrapezoidProfile
-from wpimath.units import Units
+from wpimath import units
 
 class DriveConstants:
     # Driving Parameters
@@ -10,10 +10,10 @@ class DriveConstants:
     kMaxAngularSpeed = 2 * math.pi  # radians per second
 
     # Chassis configuration
-    kTrackWidth = Units.inches_to_meters(26.5)
-    kWheelBase = Units.inches_to_meters(26.5)
+    kTrackWidth = units.inchesToMeters(26.5)
+    kWheelBase = units.inchesToMeters(26.5)
 
-    kDriveKinematics = SwerveDrive2Kinematics(
+    kDriveKinematics = SwerveDrive4Kinematics(
         Translation2d(kWheelBase / 2, kTrackWidth / 2),
         Translation2d(kWheelBase / 2, -kTrackWidth / 2),
         Translation2d(-kWheelBase / 2, kTrackWidth / 2),

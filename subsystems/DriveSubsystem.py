@@ -9,7 +9,7 @@ from wpimath.kinematics import ChassisSpeeds, SwerveDrive2Kinematics, SwerveDriv
 from wpilib import ADIS16470_IMU
 from Constants import DriveConstants
 from commands2 import Subsystem
-from subsystems import MAXSwerveModule
+from subsystems.MAXSwerveModule import MAXSwerveModule
 
 class DriveSubsystem(Subsystem):
     def __init__(self):
@@ -46,10 +46,10 @@ class DriveSubsystem(Subsystem):
             DriveConstants.kDriveKinematics,
             Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)),
             [
-                self.m_frontLeft.getPosition(),
-                self.m_frontRight.getPosition(),
-                self.m_rearLeft.getPosition(),
-                self.m_rearRight.getPosition()
+                self.m_frontLeft.get_position(),
+                self.m_frontRight.get_position(),
+                self.m_rearLeft.get_position(),
+                self.m_rearRight.get_position()
             ]
         )
 
@@ -58,24 +58,24 @@ class DriveSubsystem(Subsystem):
         self.m_odometry.update(
             Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)),
             [
-                self.m_frontLeft.getPosition(),
-                self.m_frontRight.getPosition(),
-                self.m_rearLeft.getPosition(),
-                self.m_rearRight.getPosition()
+                self.m_frontLeft.get_position(),
+                self.m_frontRight.get_position(),
+                self.m_rearLeft.get_position(),
+                self.m_rearRight.get_position()
             ]
         )
 
     def getPose(self):
-        return self.m_odometry.getPoseMeters()
+        return self.m_odometry.getPose()
 
     def resetOdometry(self, pose: Pose2d):
         self.m_odometry.resetPosition(
             Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)),
             [
-                self.m_frontLeft.getPosition(),
-                self.m_frontRight.getPosition(),
-                self.m_rearLeft.getPosition(),
-                self.m_rearRight.getPosition()
+                self.m_frontLeft.get_position(),
+                self.m_frontRight.get_position(),
+                self.m_rearLeft.get_position(),
+                self.m_rearRight.get_position()
             ],
             pose
         )
@@ -104,38 +104,37 @@ class DriveSubsystem(Subsystem):
         SwerveDrive2Kinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond)
 
         # Set the desired state for each swerve module
-        self.m_frontLeft.setDesiredState(swerveModuleStates[0])
-        self.m_frontRight.setDesiredState(swerveModuleStates[1])
-        self.m_rearLeft.setDesiredState(swerveModuleStates[2])
-        self.m_rearRight.setDesiredState(swerveModuleStates[3])
+        self.m_frontLeft.set_desired_state(swerveModuleStates[0])
+        self.m_frontRight.set_desired_state(swerveModuleStates[1])
+        self.m_rearLeft.set_desired_state(swerveModuleStates[2])
+        self.m_rearRight.set_desired_state(swerveModuleStates[3])
 
     def setX(self):
-        self.m_frontLeft.setDesiredState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
-        self.m_frontRight.setDesiredState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
-        self.m_rearLeft.setDesiredState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
-        self.m_rearRight.setDesiredState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
+        self.m_frontLeft.set_desired_state(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
+        self.m_frontRight.set_desired_state(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
+        self.m_rearLeft.set_desired_state(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
+        self.m_rearRight.set_desired_state(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
 
     def setModuleStates(self, desiredStates):
         # Desaturate wheel speeds
         SwerveDrive2Kinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.kMaxSpeedMetersPerSecond)
 
         # Set the desired state for each swerve module
-        self.m_frontLeft.setDesiredState(desiredStates[0])
-        self.m_frontRight.setDesiredState(desiredStates[1])
-        self.m_rearLeft.setDesiredState(desiredStates[2])
-        self.m_rearRight.setDesiredState(desiredStates[3])
+        self.m_frontLeft.set_desired_state(desiredStates[0])
+        self.m_frontRight.set_desired_state(desiredStates[1])
+        self.m_rearLeft.set_desired_state(desiredStates[2])
+        self.m_rearRight.set_desired_state(desiredStates[3])
 
     def resetEncoders(self):
-        self.m_frontLeft.resetEncoders()
-        self.m_rearLeft.resetEncoders()
-        self.m_frontRight.resetEncoders()
-        self.m_rearRight.resetEncoders()
+        self.m_frontLeft.reset_encoders()
+        self.m_rearLeft.reset_encoders()
+        self.m_frontRight.reset_encoders()
+        self.m_rearRight.reset_encoders()
 
     def zeroHeading(self):
         self.m_gyro.reset()
 
     def getHeading(self):
-        return Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)).getDegrees()
-
+        return Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)).degrees()
     def getTurnRate(self):
         return self.m_gyro.getRate(ADIS16470_IMU.IMUAxis.kZ) * (DriveConstants.kGyroReversed if -1.0 else 1.0)
