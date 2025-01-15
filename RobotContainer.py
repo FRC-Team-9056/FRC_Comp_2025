@@ -53,6 +53,7 @@ class RobotContainer:
             AutoConstants.kMaxAccelerationMetersPerSecondSquared
         ).setKinematics(DriveConstants.kDriveKinematics)
 
+        """
         # An example trajectory to follow. All units in meters.
         exampleTrajectory = TrajectoryGenerator.generateTrajectory(
             Pose2d(0, 0, Rotation2d(0)),
@@ -60,6 +61,7 @@ class RobotContainer:
             Pose2d(3, 0, Rotation2d(0)),
             config
         )
+        
 
         thetaController = ProfiledPIDController(
             AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints
@@ -84,3 +86,4 @@ class RobotContainer:
 
         # Run path following command, then stop at the end.
         return swerveControllerCommand.andThen(lambda: self.m_robotDrive.drive(0, 0, 0, False))
+        """

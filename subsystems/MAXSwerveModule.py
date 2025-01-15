@@ -14,6 +14,7 @@ from Configs import Configs
 
 class MAXSwerveModule:
     def __init__(self, driving_can_id, turning_can_id, chassis_angular_offset):
+
         self.m_driving_spark = SparkMax(driving_can_id, SparkLowLevel.MotorType.kBrushless)
         self.m_turning_spark = SparkMax(turning_can_id, SparkLowLevel.MotorType.kBrushless)
 
@@ -64,8 +65,8 @@ class MAXSwerveModule:
         corrected_desired_state.optimize(Rotation2d.fromRotations(self.m_turning_encoder.getPosition()))
 
         # Command driving and turning SPARKS towards their respective setpoints.
-        self.m_driving_closed_loop_controller.setReference(corrected_desired_state.speed, SparkLowLevel.ControlType)
-        self.m_turning_closed_loop_controller.setReference(corrected_desired_state.angle, SparkLowLevel.ControlType)
+        self.m_driving_closed_loop_controller.setReference(corrected_desired_state.speed, SparkLowLevel.ControlType.kPosition)
+        self.m_turning_closed_loop_controller.setReference(corrected_desired_state.angle.radians() / math.pi, SparkLowLevel.ControlType.kPosition)
 
         self.m_desired_state = desired_state
 
