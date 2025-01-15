@@ -5,7 +5,7 @@
 #
 import math
 from wpimath.geometry import Pose2d, Rotation2d
-from wpimath.kinematics import ChassisSpeeds, SwerveDrive2Kinematics, SwerveDrive2Odometry, SwerveModuleState, SwerveModulePosition
+from wpimath.kinematics import ChassisSpeeds, SwerveDrive4Kinematics, SwerveDrive4Odometry, SwerveModuleState, SwerveModulePosition
 from wpilib import ADIS16470_IMU
 from Constants import DriveConstants
 from commands2 import Subsystem
@@ -42,7 +42,7 @@ class DriveSubsystem(Subsystem):
         self.m_gyro = ADIS16470_IMU()
 
         # Odometry class for tracking robot pose
-        self.m_odometry = SwerveDrive2Odometry(
+        self.m_odometry = SwerveDrive4Odometry(
             DriveConstants.kDriveKinematics,
             Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)),
             [
@@ -101,7 +101,7 @@ class DriveSubsystem(Subsystem):
             )
         
         # Desaturate wheel speeds
-        SwerveDrive2Kinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond)
+        SwerveDrive4Kinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond)
 
         # Set the desired state for each swerve module
         self.m_frontLeft.set_desired_state(swerveModuleStates[0])
@@ -117,7 +117,7 @@ class DriveSubsystem(Subsystem):
 
     def setModuleStates(self, desiredStates):
         # Desaturate wheel speeds
-        SwerveDrive2Kinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.kMaxSpeedMetersPerSecond)
+        SwerveDrive4Kinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.kMaxSpeedMetersPerSecond)
 
         # Set the desired state for each swerve module
         self.m_frontLeft.set_desired_state(desiredStates[0])

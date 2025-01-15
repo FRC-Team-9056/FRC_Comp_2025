@@ -64,8 +64,8 @@ class MAXSwerveModule:
         corrected_desired_state.optimize(Rotation2d.fromRotations(self.m_turning_encoder.getPosition()))
 
         # Command driving and turning SPARKS towards their respective setpoints.
-        self.m_driving_closed_loop_controller.setReference(corrected_desired_state.speed, SparkLowLevel.ControlType.kVelocity)
-        self.m_turning_closed_loop_controller.setReference(corrected_desired_state.angle, SparkLowLevel.ControlType.kPosition)
+        self.m_driving_closed_loop_controller.setReference(corrected_desired_state.speed, SparkLowLevel.ControlType)
+        self.m_turning_closed_loop_controller.setReference(corrected_desired_state.angle, SparkLowLevel.ControlType)
 
         self.m_desired_state = desired_state
 
