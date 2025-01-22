@@ -6,7 +6,7 @@
 import math
 from wpimath.geometry import Pose2d, Rotation2d
 from wpimath.kinematics import ChassisSpeeds, SwerveDrive4Kinematics, SwerveDrive4Odometry, SwerveModuleState, SwerveModulePosition
-from wpilib import ADIS16470_IMU
+from wpilib import ADXRS450_Gyro
 from Constants import DriveConstants
 from commands2 import Subsystem
 from subsystems.MAXSwerveModule import MAXSwerveModule
@@ -39,12 +39,12 @@ class DriveSubsystem(Subsystem):
         )
 
         # The gyro sensor
-        self.m_gyro = ADIS16470_IMU()
+        self.m_gyro = ADXRS450_Gyro()
 
         # Odometry class for tracking robot pose
         self.m_odometry = SwerveDrive4Odometry(
             DriveConstants.kDriveKinematics,
-            Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)),
+            Rotation2d.fromDegrees(self.m_gyro.getAngle()),
             [
                 self.m_frontLeft.get_position(),
                 self.m_frontRight.get_position(),
@@ -56,7 +56,7 @@ class DriveSubsystem(Subsystem):
     def periodic(self):
         # Update the odometry in the periodic block
         self.m_odometry.update(
-            Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)),
+            Rotation2d.fromDegrees(self.m_gyro.getAngle()),
             [
                 self.m_frontLeft.get_position(),
                 self.m_frontRight.get_position(),
@@ -70,7 +70,7 @@ class DriveSubsystem(Subsystem):
 
     def resetOdometry(self, pose: Pose2d):
         self.m_odometry.resetPosition(
-            Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)),
+            Rotation2d.fromDegrees(self.m_gyro.getAngle()),
             [
                 self.m_frontLeft.get_position(),
                 self.m_frontRight.get_position(),
@@ -92,7 +92,7 @@ class DriveSubsystem(Subsystem):
                     xSpeedDelivered,
                     ySpeedDelivered,
                     rotDelivered,
-                    Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ))
+                    Rotation2d.fromDegrees(self.m_gyro.getAngle())
                 )
             )
         else:
@@ -135,6 +135,6 @@ class DriveSubsystem(Subsystem):
         self.m_gyro.reset()
 
     def getHeading(self):
-        return Rotation2d.fromDegrees(self.m_gyro.getAngle(ADIS16470_IMU.IMUAxis.kZ)).degrees()
+        return Rotation2d.fromDegrees(self.m_gyro.getAngle()).degrees()
     def getTurnRate(self):
-        return self.m_gyro.getRate(ADIS16470_IMU.IMUAxis.kZ) * (DriveConstants.kGyroReversed if -1.0 else 1.0)
+        return self.m_gyro.getRate() * (DriveConstants.kGyroReversed if -1.0 else 1.0)
