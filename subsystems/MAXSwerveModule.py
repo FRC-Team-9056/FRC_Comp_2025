@@ -6,10 +6,11 @@
 
 
 import math
-from rev import SparkMax, SparkLowLevel
+from rev import SparkMax, SparkLowLevel, SparkAbsoluteEncoderSim
 from wpimath.geometry import Rotation2d
 from wpimath.kinematics import SwerveModulePosition, SwerveModuleState
 from Configs import Configs
+from Constants import ModuleConstants
 
 
 class MAXSwerveModule:
@@ -18,8 +19,13 @@ class MAXSwerveModule:
         self.m_driving_spark = SparkMax(driving_can_id, SparkLowLevel.MotorType.kBrushless)
         self.m_turning_spark = SparkMax(turning_can_id, SparkLowLevel.MotorType.kBrushless)
 
-        self.m_driving_encoder = self.m_driving_spark.getEncoder()
+        self.m_driving_encoder = SparkAbsoluteEncoderSim(self.m_driving_spark)
         self.m_turning_encoder = self.m_turning_spark.getAbsoluteEncoder()
+
+
+        # Sets Conversion Factors of motors
+        self.m_driving_encoder.setVelocityConversionFactor(ModuleConstants.kDriveWheelVelocityCF)
+        self.m_driving_encoder.setPositionConversionFactor(ModuleConstants.kDriveWheelPositionCF)
 
         self.m_driving_closed_loop_controller = self.m_driving_spark.getClosedLoopController()
         self.m_turning_closed_loop_controller = self.m_turning_spark.getClosedLoopController()
@@ -74,4 +80,4 @@ class MAXSwerveModule:
         """
         Zeroes all the SwerveModule encoders.
         """
-        self.m_driving_encoder.setPosition(0)
+        self.m_driving_encoder.setPosition(0) 

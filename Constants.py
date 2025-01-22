@@ -50,7 +50,8 @@ class ModuleConstants:
 
     # Gear ratios
     kDrivingMotorReduction = (45.0 * 22) / (kDrivingMotorPinionTeeth * 15)
-    kDriveWheelFreeSpeedRps = (kDrivingMotorFreeSpeedRps * kWheelCircumferenceMeters) / kDrivingMotorReduction
+    kDriveWheelVelocityCF = (kDrivingMotorFreeSpeedRps * kWheelCircumferenceMeters) / kDrivingMotorReduction
+    kDriveWheelPositionCF = kDrivingMotorReduction * kWheelDiameterMeters
 
 class OIConstants:
     kDriverControllerPort = 0
