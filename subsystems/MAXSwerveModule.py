@@ -74,7 +74,7 @@ class MAXSwerveModule:
         self.m_driving_closed_loop_controller.setReference(corrected_desired_state.speed, SparkLowLevel.ControlType.kPosition)
         self.m_turning_closed_loop_controller.setReference(corrected_desired_state.angle.radians() / math.pi, SparkLowLevel.ControlType.kPosition)
 
-        self.m_desired_state = desired_state
+        self.m_desired_state = corrected_desired_state
 
     def reset_encoders(self):
         """
