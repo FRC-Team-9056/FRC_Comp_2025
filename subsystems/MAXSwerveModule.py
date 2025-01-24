@@ -24,7 +24,7 @@ class MAXSwerveModule:
 
 
         # Sets Conversion Factors of motors
-        self.m_driving_encoder.setVelocityConversionFactor(ModuleConstants.kDriveWheelVelocityCF)
+        self.m_driving_encoder.setVelocityConversionFactor(ModuleConstants.kDriveWheelFreeSpeedRps)
         self.m_driving_encoder.setPositionConversionFactor(ModuleConstants.kDriveWheelPositionCF)
 
         self.m_driving_closed_loop_controller = self.m_driving_spark.getClosedLoopController()
