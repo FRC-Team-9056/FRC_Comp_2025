@@ -4,9 +4,9 @@
 # the WPILib BSD license file in the root directory of this project.
 #
 import math
+import navx
 from wpimath.geometry import Pose2d, Rotation2d
 from wpimath.kinematics import ChassisSpeeds, SwerveDrive4Kinematics, SwerveDrive4Odometry, SwerveModuleState, SwerveModulePosition
-from wpilib import ADXRS450_Gyro
 from Constants import DriveConstants
 from commands2 import Subsystem
 from subsystems.MAXSwerveModule import MAXSwerveModule
@@ -39,7 +39,7 @@ class DriveSubsystem(Subsystem):
         )
 
         # The gyro sensor
-        self.m_gyro = ADXRS450_Gyro()
+        self.m_gyro = navx.AHRS(navx.AHRS.NavXComType.kMXP_SPI)
 
         # Odometry class for tracking robot pose
         self.m_odometry = SwerveDrive4Odometry(
