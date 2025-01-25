@@ -6,7 +6,7 @@
 
 
 import math
-from rev import SparkMax, SparkLowLevel, SparkAbsoluteEncoderSim
+from rev import SparkMax, SparkLowLevel
 from wpimath.geometry import Rotation2d
 from wpimath.kinematics import SwerveModulePosition, SwerveModuleState
 from Configs import Configs
@@ -19,13 +19,8 @@ class MAXSwerveModule:
         self.m_driving_spark = SparkMax(driving_can_id, SparkLowLevel.MotorType.kBrushless)
         self.m_turning_spark = SparkMax(turning_can_id, SparkLowLevel.MotorType.kBrushless)
 
-        self.m_driving_encoder = SparkAbsoluteEncoderSim(self.m_driving_spark)
+        self.m_driving_encoder = self.m_driving_spark.getEncoder()
         self.m_turning_encoder = self.m_turning_spark.getAbsoluteEncoder()
-
-
-        # Sets Conversion Factors of motors
-        self.m_driving_encoder.setVelocityConversionFactor(ModuleConstants.kDriveWheelFreeSpeedRps)
-        self.m_driving_encoder.setPositionConversionFactor(ModuleConstants.kDriveWheelPositionCF)
 
         self.m_driving_closed_loop_controller = self.m_driving_spark.getClosedLoopController()
         self.m_turning_closed_loop_controller = self.m_turning_spark.getClosedLoopController()
@@ -71,8 +66,8 @@ class MAXSwerveModule:
         corrected_desired_state.optimize(Rotation2d.fromRotations(self.m_turning_encoder.getPosition()))
 
         # Command driving and turning SPARKS towards their respective setpoints.
-        self.m_driving_closed_loop_controller.setReference(corrected_desired_state.speed, SparkLowLevel.ControlType.kPosition)
-        self.m_turning_closed_loop_controller.setReference(corrected_desired_state.angle.radians() / math.pi, SparkLowLevel.ControlType.kPosition)
+        self.m_driving_closed_loop_controller.setReference(corrected_desired_state.speed, SparkLowLevel.ControlType.kVelocity)
+        self.m_turning_closed_loop_controller.setReference(corrected_desired_state.angle.radians(), SparkLowLevel.ControlType.kPosition)
 
         self.m_desired_state = corrected_desired_state
 

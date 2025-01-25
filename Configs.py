@@ -38,7 +38,7 @@ class Configs:
                 .outputRange(-1, 1) \
                 .positionWrappingEnabled(True) \
                 .positionWrappingInputRange(0, turningFactor) \
-                .FeedbackSensor.kPrimaryEncoder
+                .FeedbackSensor.kAbsoluteEncoder # this might need to change to Primary encoder for the feedback loop, but I doubt it.
 
 # Call the initialization function
 Configs.MAXSwerveModule.initialize()
