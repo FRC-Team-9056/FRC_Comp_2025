@@ -21,7 +21,7 @@ class Configs:
             Configs.MAXSwerveModule.drivingConfig.encoder.positionConversionFactor(drivingFactor) 
             Configs.MAXSwerveModule.drivingConfig.encoder.velocityConversionFactor(drivingFactor / 60.0)   
             Configs.MAXSwerveModule.drivingConfig.closedLoop \
-                .pid(0.04, 0, 0) \
+                .pid(0.45, 0, 0) \
                 .velocityFF(drivingVelocityFeedForward) \
                 .outputRange(-1, 1)
 
