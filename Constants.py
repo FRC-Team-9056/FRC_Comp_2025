@@ -55,7 +55,7 @@ class ModuleConstants:
 
 class OIConstants:
     kDriverControllerPort = 0
-    kDriveDeadband = 0.2
+    kDriveDeadband = 0.02
 
 class AutoConstants:
     kMaxSpeedMetersPerSecond = 3
