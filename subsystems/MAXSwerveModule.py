@@ -5,13 +5,10 @@
 #
 
 
-import math
 from rev import SparkMax, SparkLowLevel
 from wpimath.geometry import Rotation2d
 from wpimath.kinematics import SwerveModulePosition, SwerveModuleState
 from Configs import Configs
-from Constants import ModuleConstants
-
 
 class MAXSwerveModule:
     def __init__(self, driving_can_id, turning_can_id, chassis_angular_offset):
@@ -42,7 +39,7 @@ class MAXSwerveModule:
         """
         # Apply chassis angular offset to the encoder position to get the position relative to the chassis.
         return SwerveModuleState(self.m_driving_encoder.getVelocity(),
-                                 Rotation2d.fromRotations(self.m_turning_encoder.getPosition()) - Rotation2d(self.m_chassis_angular_offset))
+                                 Rotation2d(self.m_turning_encoder.getPosition() - self.m_chassis_angular_offset))
 
     def get_position(self):
         """
@@ -50,7 +47,7 @@ class MAXSwerveModule:
         """
         # Apply chassis angular offset to the encoder position to get the position relative to the chassis.
         return SwerveModulePosition(self.m_driving_encoder.getPosition(),
-                                    Rotation2d.fromRotations(self.m_turning_encoder.getPosition()) - Rotation2d(self.m_chassis_angular_offset))
+                                    Rotation2d(self.m_turning_encoder.getPosition() - self.m_chassis_angular_offset))
 
     def set_desired_state(self, desired_state: SwerveModuleState):
         """
@@ -63,10 +60,10 @@ class MAXSwerveModule:
         corrected_desired_state.angle = desired_state.angle + Rotation2d(self.m_chassis_angular_offset)
 
         # Optimize the reference state to avoid spinning further than 90 degrees.
-        corrected_desired_state.optimize(Rotation2d.fromRotations(self.m_turning_encoder.getPosition()))
+        corrected_desired_state.optimize(Rotation2d(self.m_turning_encoder.getPosition()))
 
         # Command driving and turning SPARKS towards their respective setpoints.
-        self.m_driving_closed_loop_controller.setReference(corrected_desired_state.speed, SparkLowLevel.ControlType.kVelocity)
+        self.m_driving_closed_loop_controller.setReference(corrected_desired_state.speed, SparkLowLevel.ControlType.kPosition)
         self.m_turning_closed_loop_controller.setReference(corrected_desired_state.angle.radians(), SparkLowLevel.ControlType.kPosition)
 
         self.m_desired_state = corrected_desired_state
