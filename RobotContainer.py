@@ -5,14 +5,14 @@
 #
 
 import math
-from wpilib import XboxController
-import commands2 as command
+from wpimath.controller import PIDController, ProfiledPIDController
 from wpimath.geometry import Pose2d, Rotation2d, Translation2d
 from wpimath.trajectory import Trajectory, TrajectoryConfig, TrajectoryGenerator
-from wpimath.controller import PIDController, ProfiledPIDController
-import Constants
+from wpilib import XboxController
+from commands2 import Command, RunCommand, SwerveControllerCommand
+from commands2.button import JoystickButton
+from Constants import AutoConstants, DriveConstants, OIConstants
 from subsystems.DriveSubsystem import DriveSubsystem
-from utils.GamepadUtils import GamepadUtils
 
 class RobotContainer:
     def __init__(self):
@@ -20,59 +20,70 @@ class RobotContainer:
         self.m_robotDrive = DriveSubsystem()
 
         # The driver's controller
-        self.m_driverController = XboxController(Constants.OIConstants.kDriverControllerPort)
+        self.m_driverController = XboxController(OIConstants.kDriverControllerPort)
 
         # Configure the button bindings
-        # self.configureButtonBindings()
+        self.configureButtonBindings()
 
         # Configure default commands
-
         self.m_robotDrive.setDefaultCommand(
-            command.RunCommand(
+            RunCommand(
                 lambda: self.m_robotDrive.drive(
-                    -GamepadUtils.squareInput(self.m_driverController.getLeftY(), Constants.OIConstants.kDriveDeadband),
-                    -GamepadUtils.squareInput(self.m_driverController.getLeftX(), Constants.OIConstants.kDriveDeadband),
-                    -GamepadUtils.squareInput(self.m_driverController.getRightX(), Constants.OIConstants.kDriveDeadband),
-                    True, False),
-                self.m_robotDrive)
+                    -self.applyDeadband(self.m_driverController.getLeftY(), OIConstants.kDriveDeadband),
+                    -self.applyDeadband(self.m_driverController.getLeftX(), OIConstants.kDriveDeadband),
+                    -self.applyDeadband(self.m_driverController.getRightX(), OIConstants.kDriveDeadband),
+                    False),
+                self.m_robotDrive
+            )
+        )
+
+    def applyDeadband(self, value, deadband):
+        """Apply a deadband to a joystick input"""
+        return value if abs(value) > deadband else 0.0
+
+    def configureButtonBindings(self):
+        JoystickButton(self.m_driverController, XboxController.Button.kRightStick).whileTrue(
+            RunCommand(lambda: self.m_robotDrive.setX(), self.m_robotDrive)
         )
 
     def getAutonomousCommand(self):
         # Create config for trajectory
         config = TrajectoryConfig(
-            Constants.AutoConstants.kMaxSpeedMetersPerSecond,
-            Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared
-        ).setKinematics(Constants.DriveConstants.kDriveKinematics)
+            AutoConstants.kMaxSpeedMetersPerSecond,
+            AutoConstants.kMaxAccelerationMetersPerSecondSquared
+        ).setKinematics(DriveConstants.kDriveKinematics)
+
         """
-        # Example trajectory
+        # An example trajectory to follow. All units in meters.
         exampleTrajectory = TrajectoryGenerator.generateTrajectory(
             Pose2d(0, 0, Rotation2d(0)),
             [Translation2d(1, 1), Translation2d(2, -1)],
             Pose2d(3, 0, Rotation2d(0)),
             config
         )
+        
 
-        # Create theta controller
         thetaController = ProfiledPIDController(
-            Constants.AutoConstants.kPThetaController, 0, 0, Constants.AutoConstants.kThetaControllerConstraints
+            AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints
         )
         thetaController.enableContinuousInput(-math.pi, math.pi)
 
-        # Swerve controller command
-        swerveControllerCommand = command.SwerveControllerCommand(
+        swerveControllerCommand = SwerveControllerCommand(
             exampleTrajectory,
             self.m_robotDrive.getPose,
-            Constants.DriveConstants.kDriveKinematics,
-            PIDController(Constants.AutoConstants.kPXController, 0, 0),
-            PIDController(Constants.AutoConstants.kPYController, 0, 0),
+            DriveConstants.kDriveKinematics,
+
+            # Position controllers
+            PIDController(AutoConstants.kPXController, 0, 0),
+            PIDController(AutoConstants.kPYController, 0, 0),
             thetaController,
             self.m_robotDrive.setModuleStates,
             self.m_robotDrive
         )
 
-        # Reset odometry to the starting pose of the trajectory
-        self.m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose())
+        # Reset odometry to the starting pose of the trajectory.
+        self.m_robotDrive.resetOdometry(Trajectory.initialPose)
 
-        # Run path following command, then stop at the end
-        return swerveControllerCommand.andThen(lambda: self.m_robotDrive.drive(0, 0, 0, False, False))
+        # Run path following command, then stop at the end.
+        return swerveControllerCommand.andThen(lambda: self.m_robotDrive.drive(0, 0, 0, False))
         """

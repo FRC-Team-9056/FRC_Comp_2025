@@ -40,6 +40,7 @@ class Robot(wpilib.TimedRobot):
         # Schedule the autonomous command if it exists
         if self.m_autonomousCommand:
             self.m_autonomousCommand.schedule()
+        pass
 
     def autonomousPeriodic(self):
         """This function is called periodically during autonomous."""
