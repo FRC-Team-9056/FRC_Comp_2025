@@ -32,7 +32,7 @@ class RobotContainer:
                     -self.applyDeadband(self.m_driverController.getLeftY(), OIConstants.kDriveDeadband),
                     -self.applyDeadband(self.m_driverController.getLeftX(), OIConstants.kDriveDeadband),
                     -self.applyDeadband(self.m_driverController.getRightX(), OIConstants.kDriveDeadband),
-                    False),
+                    True),
                 self.m_robotDrive
             )
         )
