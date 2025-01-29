@@ -25,14 +25,14 @@ class RobotContainer:
         # Configure the button bindings
         self.configureButtonBindings()
 
-        # Configure default commands
+        # Configure default comemands
         self.m_robotDrive.setDefaultCommand(
             RunCommand(
                 lambda: self.m_robotDrive.drive(
                     -self.applyDeadband(self.m_driverController.getLeftY(), OIConstants.kDriveDeadband),
                     -self.applyDeadband(self.m_driverController.getLeftX(), OIConstants.kDriveDeadband),
                     -self.applyDeadband(self.m_driverController.getRightX(), OIConstants.kDriveDeadband),
-                    True),
+                    False),
                 self.m_robotDrive
             )
         )
