@@ -5,6 +5,7 @@
 #
 
 import math
+import Constants
 from wpimath.controller import PIDController, ProfiledPIDController
 from wpimath.geometry import Pose2d, Rotation2d, Translation2d
 from wpimath.trajectory import Trajectory, TrajectoryConfig, TrajectoryGenerator
@@ -13,11 +14,16 @@ from commands2 import Command, RunCommand, SwerveControllerCommand
 from commands2.button import JoystickButton
 from Constants import AutoConstants, DriveConstants, OIConstants
 from subsystems.DriveSubsystem import DriveSubsystem
+from subsystems.AlgaeSubsystem import AlgaeSubsystem
+from subsystems.CoralSubsystem import CoralSubsystem
 
 class RobotContainer:
     def __init__(self):
         # The robot's subsystems
         self.m_robotDrive = DriveSubsystem()
+        self.m_coralSubsystem = CoralSubsystem()
+
+        self.m_algaeSubsystem = AlgaeSubsystem()
 
         # The driver's controller
         self.m_driverController = XboxController(OIConstants.kDriverControllerPort)
@@ -45,6 +51,37 @@ class RobotContainer:
         JoystickButton(self.m_driverController, XboxController.Button.kRightStick).whileTrue(
             RunCommand(lambda: self.m_robotDrive.setX(), self.m_robotDrive)
         )
+
+         # Left Bumper -> Run tube intake
+        self.m_driverController.leftBumper().whileTrue(self.m_coralSubsystem.runIntakeCommand())
+
+        # Right Bumper -> Run tube intake in reverse
+        self.m_driverController.rightBumper().whileTrue(self.m_coralSubsystem.reverseIntakeCommand())
+
+        # B Button -> Elevator/Arm to human player position, set ball intake to stow when idle
+        self.m_driverController.b().onTrue(
+            self.m_coralSubsystem.setSetpointCommand(CoralSubsystem.Setpoint.kFeederStation)
+            .alongWith(self.m_algaeSubsystem.stowCommand())
+        )
+
+        # A Button -> Elevator/Arm to level 2 position
+        self.m_driverController.a().onTrue(self.m_coralSubsystem.setSetpointCommand(CoralSubsystem.Setpoint.kLevel2))
+
+        # X Button -> Elevator/Arm to level 3 position
+        self.m_driverController.x().onTrue(self.m_coralSubsystem.setSetpointCommand(CoralSubsystem.Setpoint.kLevel3))
+
+        # Y Button -> Elevator/Arm to level 4 position
+        self.m_driverController.y().onTrue(self.m_coralSubsystem.setSetpointCommand(CoralSubsystem.Setpoint.kLevel4))
+
+        # Right Trigger -> Run ball intake, set to leave out when idle
+        self.m_driverController.rightTrigger(Constants.OIConstants.kTriggerButtonThreshold).whileTrue(self.m_algaeSubsystem.runIntakeCommand())
+
+        # Left Trigger -> Run ball intake in reverse, set to stow when idle
+        self.m_driverController.leftTrigger(Constants.OIConstants.kTriggerButtonThreshold).whileTrue(self.m_algaeSubsystem.reverseIntakeCommand())
+
+    def getSimulationTotalCurrentDraw(self):
+        # For each subsystem with simulation, returns total current draw
+        return self.m_coralSubsystem.getSimulationCurrentDraw() + self.m_algaeSubsystem.getSimulationCurrentDraw()
 
     def getAutonomousCommand(self):
         # Create config for trajectory
