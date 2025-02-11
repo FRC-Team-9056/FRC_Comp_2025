@@ -5,11 +5,10 @@
 #
 
 import wpilib
-from rev import SparkMax
+from rev import SparkFlex
+from wpilib import MechanismLigament2d
 from wpilib.simulation import SingleJointedArmSim
 from wpilib import SmartDashboard
-from wpimath.controller import PIDController
-from wpilib.interfaces import GenericHID
 from wpimath.system.plant import DCMotor
 from Constants import AlgaeSubsystemConstants
 from Constants import SimulationRobotConstants
@@ -22,12 +21,12 @@ class AlgaeSubsystem(Subsystem):
         super().__init__()
 
         # Initialize arm SPARK motor and encoder
-        self.arm_motor = SparkMax(AlgaeSubsystemConstants.kPivotMotorCanId)
+        self.arm_motor = SparkFlex(AlgaeSubsystemConstants.kPivotMotorCanId)
         self.arm_motor.setInverted(False)  # Set motor direction if necessary
         self.arm_encoder = self.arm_motor.getEncoder()
 
         # Initialize intake SPARK motor
-        self.intake_motor = SparkMax(AlgaeSubsystemConstants.kIntakeMotorCanId)
+        self.intake_motor = SparkFlex(AlgaeSubsystemConstants.kIntakeMotorCanId)
         self.intake_motor.setInverted(False)
 
         # Initialize member variables
@@ -45,11 +44,12 @@ class AlgaeSubsystem(Subsystem):
         )
 
         # Mechanism2d setup for visualizing the subsystem
-        self.mech2d = wpilib.Mechanism2d(50, 50)
-        self.mech2d_root = self.mech2d.getRoot("Ball Intake Root", 28, 3)
-        self.intake_pivot_mechanism = self.mech2d_root.appendLigament(
+        self.intake_pivot_mechanism = MechanismLigament2d(50, 50)
+        #self.mech2d_root = self.mech2d.getRoot("Ball Intake Root", 28, 3)
+        self.intake_pivot_mechanism = self.intake_pivot_mechanism.appendLigament(
             wpilib.SmartDashboard.putData(
-                "Intake Pivot", SimulationRobotConstants.kIntakeShortBarLength * SimulationRobotConstants.kPixelsPerMeter,
+                "Intake Pivot",
+                SimulationRobotConstants.kIntakeShortBarLength * SimulationRobotConstants.kPixelsPerMeter,
                 math.degrees(SimulationRobotConstants.kIntakeMinAngleRads)
             )
         )
@@ -89,6 +89,19 @@ class AlgaeSubsystem(Subsystem):
         """Command to stop the intake and keep the arm in the stow position."""
         return self.run(lambda: self.set_intake_power(0.0) if self.stow_when_idle else self.set_intake_power(AlgaeSubsystemConstants.IntakeSetpoints.kHold))
 
+    def _run_intake(self, power, position):
+        self.stow_when_idle = False
+        self.set_intake_power(power)
+        self.set_intake_position(position)
+
+    def _idle(self):
+        if self.stow_when_idle:
+            self.set_intake_power(0.0)
+            self.set_intake_position(AlgaeSubsystemConstants.ArmSetpoints.kStow)
+        else:
+            self.set_intake_power(AlgaeSubsystemConstants.IntakeSetpoints.kHold)
+            self.set_intake_position(AlgaeSubsystemConstants.ArmSetpoints.kHold)
+
     def set_intake_power(self, power):
         """Set the intake motor power."""
         self.intake_motor.set(power)
@@ -96,7 +109,7 @@ class AlgaeSubsystem(Subsystem):
     def set_intake_position(self, position):
         """Set the arm motor position using closed-loop control."""
         # Assuming we have a PID controller for this
-        self.arm_motor.set(position, SparkMax.ControlType.kPosition)
+        self.arm_motor.set(position, SparkFlex.ControlType.kPosition)
 
     def periodic(self):
         """Called periodically to update the status and display values."""
@@ -109,12 +122,12 @@ class AlgaeSubsystem(Subsystem):
             + math.degrees(self.arm_encoder.getPosition() / SimulationRobotConstants.kIntakeReduction)
         )
 
+    def get_simulation_current_draw(self):
+        """Returns simulated current draw"""
+        return self.arm_motor_sim.getCurrentDraw()
+    
     def simulation_periodic(self):
         """Simulation logic for the subsystem."""
         self.arm_motor_sim.setInput(self.arm_motor.getAppliedOutput() * wpilib.RobotController.getBatteryVoltage())
         self.arm_motor_sim.update(0.020)
-        self.arm_motor_sim.iterate(
-            math.radians(self.arm_motor_sim.getVelocityRadPerSec() * SimulationRobotConstants.kArmReduction),
-            wpilib.RobotController.getBatteryVoltage(),
-            0.02
-        )
+        self.arm_encoder.setPosition(math.degrees(self.arm_motor_sim.getAngle()))

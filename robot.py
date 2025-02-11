@@ -33,14 +33,14 @@ class Robot(wpilib.TimedRobot):
         """Called periodically during Disabled mode."""
         pass
 
-    def autonomousInit(self):
+    #def autonomousInit(self):
         """This function is called once when autonomous mode starts."""
-        self.m_autonomousCommand = self.m_robotContainer.getAutonomousCommand()
+        #self.m_autonomousCommand = self.m_robotContainer.getAutonomousCommand()
 
-        # Schedule the autonomous command if it exists
-        if self.m_autonomousCommand:
-            self.m_autonomousCommand.schedule()
-        pass
+       # Schedule the autonomous command if it exists
+       # if self.m_autonomousCommand:
+       #    self.m_autonomousCommand.schedule()
+       # pass
 
     def autonomousPeriodic(self):
         """This function is called periodically during autonomous."""
