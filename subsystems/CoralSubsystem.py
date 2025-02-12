@@ -6,6 +6,7 @@
 
 import math
 import wpilib
+from wpimath import units
 from rev import SparkMax, SparkLowLevel, SparkFlex
 from wpilib.simulation import ElevatorSim, SingleJointedArmSim
 from commands2 import Subsystem
@@ -46,17 +47,18 @@ class CoralSubsystem(Subsystem):
         # Simulation setup
         self.elevator_motor_model = DCMotor.neoVortex(1)
         self.arm_motor_model = DCMotor.NEO(1)
-        self.elevator_sim = ElevatorSim(self.elevator_motor_model, SimulationRobotConstants.kElevatorGearing,
-                                        SimulationRobotConstants.kCarriageMass, SimulationRobotConstants.kElevatorDrumRadius,
-                                        SimulationRobotConstants.kMinElevatorHeightMeters, SimulationRobotConstants.kMaxElevatorHeightMeters)
+        '''
+        self.elevator_sim = ElevatorSim(gearbox=self.elevator_motor_model, gearing=SimulationRobotConstants.kElevatorGearing,
+                                        carriageMass= units.meters(SimulationRobotConstants.kCarriageMass), drumRadius=SimulationRobotConstants.kElevatorDrumRadius,
+                                        minHeight=SimulationRobotConstants.kMinElevatorHeightMeters, maxHeight=SimulationRobotConstants.kMaxElevatorHeightMeters)
         
         self.arm_sim = SingleJointedArmSim(self.arm_motor_model, SimulationRobotConstants.kArmReduction, 
                                            SimulationRobotConstants.kArmLength)
+      '''
 
         # SmartDashboard - Mechanism visualization
         self.mechanism_2d = wpilib.Mechanism2d(100, 100)
         wpilib.SmartDashboard.putData("Coral Mechanism", self.mechanism_2d)
-
 
      def move_to_setpoint(self):
         # Using SPARK controller reference to set targets

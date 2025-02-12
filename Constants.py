@@ -28,8 +28,8 @@ class CoralSubsystemConstants:
         kReverse = -0.5
 
 class AlgaeSubsystemConstants:
-    kIntakeMotorCanId = 13
-    kPivotMotorCanId = 14
+    kIntakeMotorCanId = 5
+    kPivotMotorCanId = 6
 
     class ArmSetpoints:
         kStow = 18.5

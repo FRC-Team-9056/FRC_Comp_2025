@@ -32,7 +32,7 @@ class AlgaeSubsystem(Subsystem):
         # Initialize member variables
         self.stow_when_idle = True
         self.was_reset = False
-
+        '''
         # Simulation setup for arm
         self.arm_motor_model = DCMotor.NEO(1)  # assuming Neo Motor
         self.arm_motor_sim = SingleJointedArmSim(
@@ -42,7 +42,7 @@ class AlgaeSubsystem(Subsystem):
             SimulationRobotConstants.kIntakeMinAngleRads,
             SimulationRobotConstants.kIntakeMaxAngleRads
         )
-
+        
         # Mechanism2d setup for visualizing the subsystem
         self.intake_pivot_mechanism = MechanismLigament2d(50, 50)
         #self.mech2d_root = self.intake_pivot_mechanism("Ball Intake Root", 28, 3)
@@ -53,7 +53,7 @@ class AlgaeSubsystem(Subsystem):
                 math.degrees(SimulationRobotConstants.kIntakeMinAngleRads)
             )
         )
-
+        '''
         #wpilib.SmartDashboard.putData("Algae Subsystem", self.)
 
         # Zero the arm encoder
@@ -116,11 +116,12 @@ class AlgaeSubsystem(Subsystem):
         self.zero_on_user_button()
         SmartDashboard.putNumber("Algae/Arm/Position", self.arm_encoder.getPosition())
         SmartDashboard.putNumber("Algae/Intake/Applied Output", self.intake_motor.getAppliedOutput())
-
+        '''
         self.intake_pivot_mechanism.setAngle(
             math.degrees(SimulationRobotConstants.kIntakeMinAngleRads)
             + math.degrees(self.arm_encoder.getPosition() / SimulationRobotConstants.kIntakeReduction)
         )
+        '''
 
     def get_simulation_current_draw(self):
         """Returns simulated current draw"""

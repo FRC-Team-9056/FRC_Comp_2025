@@ -7,7 +7,7 @@
 import Constants
 from wpilib import XboxController
 from commands2 import RunCommand
-from commands2.button import JoystickButton
+from commands2.button import JoystickButton, CommandJoystick
 from Constants import OIConstants
 from subsystems.DriveSubsystem import DriveSubsystem
 from subsystems.AlgaeSubsystem import AlgaeSubsystem
@@ -81,16 +81,12 @@ class RobotContainer:
         )
 
         # Right Trigger -> Run ball intake, set to leave out when idle
-        JoystickButton(lambda: self.m_driverController.getRightTriggerAxis() > OIConstants.kTriggerButtonThreshold,
-                       XboxController.Axis.kRightTrigger).whileTrue(
+        while self.m_driverController.getRightTriggerAxis() > OIConstants.kTriggerButtonThreshold:
             RunCommand(lambda: self.m_algaeSubsystem.run_intake_command(), self.m_algaeSubsystem)
-        )
 
         # Left Trigger -> Run ball intake in reverse, set to stow when idle
-        JoystickButton(lambda: self.m_driverController.getLeftTriggerAxis() > OIConstants.kTriggerButtonThreshold,
-                       XboxController.Axis.kRightTrigger).whileTrue(
+        while self.m_driverController.getLeftTriggerAxis() > OIConstants.kTriggerButtonThreshold:
             RunCommand(lambda: self.m_algaeSubsystem.run_intake_command(), self.m_algaeSubsystem)
-        )
     
     print("finished button bindings")
 
