@@ -6,7 +6,7 @@
 
 import math
 import wpilib
-from rev import SparkMax
+from rev import SparkMax, SparkLowLevel, SparkFlex
 from wpilib.simulation import ElevatorSim, SingleJointedArmSim
 from commands2 import Subsystem
 from wpilib import SmartDashboard
@@ -29,13 +29,13 @@ class CoralSubsystem(Subsystem):
         super().__init__()
 
         # Motor controllers
-        self.arm_motor = SparkMax(CoralSubsystemConstants.kArmMotorCanId)
+        self.arm_motor = SparkMax(CoralSubsystemConstants.kArmMotorCanId, SparkLowLevel.MotorType.kBrushless)
         self.arm_encoder = self.arm_motor.getEncoder()
         
-        self.elevator_motor = SparkMax(CoralSubsystemConstants.kElevatorMotorCanId)
+        self.elevator_motor = SparkFlex(CoralSubsystemConstants.kElevatorMotorCanId, SparkLowLevel.MotorType.kBrushless)
         self.elevator_encoder = self.elevator_motor.getEncoder()
         
-        self.intake_motor = SparkMax(CoralSubsystemConstants.kIntakeMotorCanId)
+        self.intake_motor = SparkMax(CoralSubsystemConstants.kIntakeMotorCanId, SparkLowLevel.MotorType.kBrushless)
         
         # State variables
         self.was_reset_by_button = False

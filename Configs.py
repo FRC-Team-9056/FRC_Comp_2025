@@ -4,7 +4,7 @@ from Constants import ModuleConstants
 
 class Configs:
     class MAXSwerveModule:
-        drivingConfig = SparkFlexConfig()
+        drivingConfig = SparkMaxConfig()
         turningConfig = SparkMaxConfig()
 
 
@@ -20,8 +20,9 @@ class Configs:
             Configs.MAXSwerveModule.drivingConfig \
                 .smartCurrentLimit(50) \
                 .setIdleMode(idleMode=SparkMaxConfig.IdleMode.kBrake)
-            Configs.MAXSwerveModule.drivingConfig.encoder.positionConversionFactor(drivingFactor)
-            Configs.MAXSwerveModule.drivingConfig.encoder.velocityConversionFactor(drivingFactor / 60.0)  
+            Configs.MAXSwerveModule.drivingConfig.encoder \
+                .positionConversionFactor(drivingFactor) \
+                .velocityConversionFactor(drivingFactor / 60.0)  # meters and meters per second
             Configs.MAXSwerveModule.drivingConfig.closedLoop \
                 .pid(0, 0, 0) \
                 .velocityFF(drivingVelocityFeedForward) \
@@ -32,9 +33,10 @@ class Configs:
             Configs.MAXSwerveModule.turningConfig \
                 .smartCurrentLimit(20) \
                 .setIdleMode(idleMode=SparkMaxConfig.IdleMode.kBrake)
-            Configs.MAXSwerveModule.turningConfig.absoluteEncoder.inverted(True)
-            Configs.MAXSwerveModule.turningConfig.absoluteEncoder.positionConversionFactor(turningFactor)  # radians
-            Configs.MAXSwerveModule.turningConfig.absoluteEncoder.velocityConversionFactor(turningFactor / 60.0)  # radians per second
+            Configs.MAXSwerveModule.turningConfig.absoluteEncoder \
+                .inverted(True) \
+                .positionConversionFactor(turningFactor) \
+                .velocityConversionFactor(turningFactor / 60.0)  # radians and radians per second
             Configs.MAXSwerveModule.turningConfig.closedLoop \
                 .pid(1, 0, 0) \
                 .outputRange(-1, 1) \
@@ -48,48 +50,59 @@ class Configs:
         intakeConfig = SparkMaxConfig()
 
         @staticmethod
-        def configure():
+        def initialize():
             # Configure arm motor
-            Configs.CoralSubsystem.armConfig.setIdleMode(idleMode=SparkMaxConfig.IdleMode.kCoast)
-            Configs.CoralSubsystem.armConfig.smartCurrentLimit(40)  
-            Configs.CoralSubsystem.armConfig.voltageCompensation(12)
-            Configs.CoralSubsystem.armConfig.closedLoop.setFeedbackSensor(Configs.CoralSubsystem.armConfig.closedLoop.FeedbackSensor.kPrimaryEncoder)
-            Configs.CoralSubsystem.armConfig.closedLoop.pid(0.1,0,0)
-            Configs.CoralSubsystem.armConfig.closedLoop.outputRange(-1, 1)
+            Configs.CoralSubsystem.armConfig \
+                .setIdleMode(idleMode=SparkMaxConfig.IdleMode.kCoast) \
+                .smartCurrentLimit(40) \
+                .voltageCompensation(12)
+            Configs.CoralSubsystem.armConfig.closedLoop \
+                .setFeedbackSensor(Configs.CoralSubsystem.armConfig.closedLoop.FeedbackSensor.kPrimaryEncoder) \
+                .pid(0.1,0,0) \
+                .outputRange(-1, 1) \
             #!!!!!!!!The Numbers Might need to get changed!!!!!!!! -----Alex
             Configs.CoralSubsystem.armConfig.closedLoop.maxMotion.maxVelocity(2000).maxAcceleration(10000).allowedClosedLoopError(0.25)
 
             # Configure elevator motor
-            Configs.CoralSubsystem.elevatorConfig.setIdleMode(idleMode=SparkMaxConfig.IdleMode.kCoast)
-            Configs.CoralSubsystem.elevatorConfig.smartCurrentLimit(50)
-            Configs.CoralSubsystem.elevatorConfig.voltageCompensation(12)
+            Configs.CoralSubsystem.elevatorConfig \
+                .setIdleMode(idleMode=SparkFlexConfig.IdleMode.kCoast) \
+                .smartCurrentLimit(50) \
+                .voltageCompensation(12)
             Configs.CoralSubsystem.elevatorConfig.limitSwitch.reverseLimitSwitchEnabled(True)
             Configs.CoralSubsystem.elevatorConfig.closedLoop.outputRange(-1, 1)
-            Configs.CoralSubsystem.elevatorConfig.closedLoop.maxMotion.maxVelocity(4200).maxAcceleration(6000).allowedClosedLoopError(0.5)
+            Configs.CoralSubsystem.elevatorConfig.closedLoop.maxMotion \
+                .maxVelocity(4200) \
+                .maxAcceleration(6000) \
+                .allowedClosedLoopError(0.5)
 
             # Configure intake motor
-            Configs.CoralSubsystem.intakeConfig.inverted(True)
-            Configs.CoralSubsystem.intakeConfig.setIdleMode(idleMode=SparkMaxConfig.IdleMode.kBrake)
-            Configs.CoralSubsystem.intakeConfig.smartCurrentLimit(40)
+            Configs.CoralSubsystem.intakeConfig \
+                .inverted(True) \
+                .setIdleMode(idleMode=SparkMaxConfig.IdleMode.kBrake) \
+                .smartCurrentLimit(40)
 
     class AlgaeSubsystem:
-        intakeConfig = SparkFlexConfig()
+        intakeConfig = SparkMaxConfig()
         armConfig = SparkFlexConfig()
 
         @staticmethod
-        def configure():
+        def initialize():
             # Configure arm motor
-            Configs.AlgaeSubsystem.armConfig.smartCurrentLimit(40)
-            Configs.AlgaeSubsystem.armConfig.closedLoop.setFeedbackSensor(Configs.AlgaeSubsystem.armConfig.closedLoop.FeedbackSensor.kPrimaryEncoder)
-            Configs.AlgaeSubsystem.armConfig.closedLoop.pid(0.1,0,0)
-            Configs.AlgaeSubsystem.armConfig.closedLoop.outputRange(-0.5, 0.5)
+            Configs.AlgaeSubsystem.armConfig \
+                .smartCurrentLimit(40) \
+                .setIdleMode(SparkFlexConfig.IdleMode.kBrake)
+            Configs.AlgaeSubsystem.armConfig.closedLoop \
+                .setFeedbackSensor(Configs.AlgaeSubsystem.armConfig.closedLoop.FeedbackSensor.kPrimaryEncoder) \
+                .pid(0.1,0,0) \
+                .outputRange(-0.5, 0.5)
 
             # Configure intake motor
-            Configs.AlgaeSubsystem.intakeConfig.inverted(True)
-            Configs.AlgaeSubsystem.intakeConfig.setIdleMode(SparkMaxConfig.IdleMode.kBrake)
-            Configs.AlgaeSubsystem.intakeConfig.smartCurrentLimit(40)
+            Configs.AlgaeSubsystem.intakeConfig \
+                .inverted(True) \
+                .setIdleMode(SparkMaxConfig.IdleMode.kBrake) \
+                .smartCurrentLimit(40)
 
 # Call initialization functions
 Configs.MAXSwerveModule.initialize()
-Configs.CoralSubsystem.configure()
-Configs.AlgaeSubsystem.configure()
+Configs.CoralSubsystem.initialize()
+Configs.AlgaeSubsystem.initialize()

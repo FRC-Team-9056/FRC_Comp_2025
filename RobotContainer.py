@@ -12,7 +12,7 @@ from Constants import OIConstants
 from subsystems.DriveSubsystem import DriveSubsystem
 from subsystems.AlgaeSubsystem import AlgaeSubsystem
 from subsystems.CoralSubsystem import CoralSubsystem
-from commands2.button import Trigger
+print("starting robotcontainer")
 
 class RobotContainer:
     def __init__(self):
@@ -38,6 +38,8 @@ class RobotContainer:
                 self.m_robotDrive
             )
         )
+
+    print("finished init")
 
     def applyDeadband(self, value, deadband):
         """Apply a deadband to a joystick input"""
@@ -79,14 +81,18 @@ class RobotContainer:
         )
 
         # Right Trigger -> Run ball intake, set to leave out when idle
-        Trigger(lambda: self.m_driverController.getRightTriggerAxis() > OIConstants.kTriggerButtonThreshold).whileTrue(
+        JoystickButton(lambda: self.m_driverController.getRightTriggerAxis() > OIConstants.kTriggerButtonThreshold,
+                       XboxController.Axis.kRightTrigger).whileTrue(
             RunCommand(lambda: self.m_algaeSubsystem.run_intake_command(), self.m_algaeSubsystem)
         )
 
         # Left Trigger -> Run ball intake in reverse, set to stow when idle
-        Trigger(lambda: self.m_driverController.getLeftTriggerAxis() > OIConstants.kTriggerButtonThreshold).whileTrue(
+        JoystickButton(lambda: self.m_driverController.getLeftTriggerAxis() > OIConstants.kTriggerButtonThreshold,
+                       XboxController.Axis.kRightTrigger).whileTrue(
             RunCommand(lambda: self.m_algaeSubsystem.run_intake_command(), self.m_algaeSubsystem)
         )
+    
+    print("finished button bindings")
 
     def getSimulationTotalCurrentDraw(self):
         # For each subsystem with simulation, returns total current draw

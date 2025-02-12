@@ -5,7 +5,7 @@
 #
 
 import wpilib
-from rev import SparkFlex
+from rev import SparkFlex, SparkLowLevel
 from wpilib import MechanismLigament2d
 from wpilib.simulation import SingleJointedArmSim
 from wpilib import SmartDashboard
@@ -21,12 +21,12 @@ class AlgaeSubsystem(Subsystem):
         super().__init__()
 
         # Initialize arm SPARK motor and encoder
-        self.arm_motor = SparkFlex(AlgaeSubsystemConstants.kPivotMotorCanId)
+        self.arm_motor = SparkFlex(AlgaeSubsystemConstants.kPivotMotorCanId, SparkLowLevel.MotorType.kBrushless)
         self.arm_motor.setInverted(False)  # Set motor direction if necessary
         self.arm_encoder = self.arm_motor.getEncoder()
 
         # Initialize intake SPARK motor
-        self.intake_motor = SparkFlex(AlgaeSubsystemConstants.kIntakeMotorCanId)
+        self.intake_motor = SparkFlex(AlgaeSubsystemConstants.kIntakeMotorCanId, SparkLowLevel.MotorType.kBrushless)
         self.intake_motor.setInverted(False)
 
         # Initialize member variables
@@ -45,7 +45,7 @@ class AlgaeSubsystem(Subsystem):
 
         # Mechanism2d setup for visualizing the subsystem
         self.intake_pivot_mechanism = MechanismLigament2d(50, 50)
-        #self.mech2d_root = self.mech2d.getRoot("Ball Intake Root", 28, 3)
+        #self.mech2d_root = self.intake_pivot_mechanism("Ball Intake Root", 28, 3)
         self.intake_pivot_mechanism = self.intake_pivot_mechanism.appendLigament(
             wpilib.SmartDashboard.putData(
                 "Intake Pivot",
@@ -54,7 +54,7 @@ class AlgaeSubsystem(Subsystem):
             )
         )
 
-        wpilib.SmartDashboard.putData("Algae Subsystem", self.mech2d)
+        #wpilib.SmartDashboard.putData("Algae Subsystem", self.)
 
         # Zero the arm encoder
         self.arm_encoder.setPosition(0)
