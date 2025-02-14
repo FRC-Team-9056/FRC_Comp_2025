@@ -4,6 +4,7 @@ from wpimath.kinematics import SwerveDrive4Kinematics
 from wpimath.trajectory import TrapezoidProfile
 from wpimath import units
 
+
 class CoralSubsystemConstants:
     kElevatorMotorCanId = 4
     kArmMotorCanId = 3
@@ -58,6 +59,7 @@ class DriveConstants:
         Translation2d(-kWheelBase / 2, kTrackWidth / 2),
         Translation2d(-kWheelBase / 2, -kTrackWidth / 2)
     )
+
 
 
     # Angular offsets of the modules relative to the chassis in radians
