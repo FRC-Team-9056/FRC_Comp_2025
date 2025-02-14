@@ -110,8 +110,9 @@ class AutonomousCommand:
         config = TrajectoryConfig(
             AutoConstants.kMaxSpeedMetersPerSecond,
             AutoConstants.kMaxAccelerationMetersPerSecondSquared
-        ).setKinematics(DriveConstants.kDriveKinematics)
-
+        )
+        config.setKinematics(DriveConstants.kDriveKinematics)
+        
         # An example trajectory to follow. All units in meters.
         example_trajectory = TrajectoryGenerator.generateTrajectory(
             # Start at the origin facing the +X direction

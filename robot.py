@@ -7,7 +7,8 @@
 
 import wpilib
 from commands2 import CommandScheduler
-from RobotContainer import RobotContainer 
+from RobotContainer import RobotContainer, AutonomousCommand
+from subsystems import DriveSubsystem
 
 class Robot(wpilib.TimedRobot):
     def __init__(self):
@@ -35,7 +36,9 @@ class Robot(wpilib.TimedRobot):
 
     def autonomousInit(self):
         """This function is called once when autonomous mode starts."""
-        self.m_autonomousCommand = self.m_robotContainer.geta()
+        self.m_autonomousCommand = AutonomousCommand(DriveSubsystem)
+        if hasattr(self.m_autonomousCommand, "get_autonomous_command"):
+            self.m_autonomousCommand = self.m_autonomousCommand.get_autonomous_command()
 
         #Schedule the autonomous command if it exists
         if self.m_autonomousCommand:
