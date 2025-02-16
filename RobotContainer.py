@@ -6,16 +6,16 @@
 
 import Constants
 from wpilib import XboxController
+from commands2 import SwerveControllerCommand
 from commands2 import RunCommand, Command
 from commands2.button import JoystickButton
 from Constants import OIConstants, AutoConstants, DriveConstants
 from subsystems.DriveSubsystem import DriveSubsystem
 from subsystems.AlgaeSubsystem import AlgaeSubsystem
 from subsystems.CoralSubsystem import CoralSubsystem
-from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator, TrapezoidProfile, Trajectory
+from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator, TrapezoidProfile, TrapezoidProfileRadians
 from wpimath.geometry import Pose2d, Rotation2d, Translation2d
-from wpimath.controller import PIDController, ProfiledPIDController
-from wpimath.controller import HolonomicDriveController
+from wpimath.controller import PIDController, ProfiledPIDController, HolonomicDriveController, ProfiledPIDControllerRadians
 from commands2 import SequentialCommandGroup, InstantCommand
 
 
@@ -102,8 +102,8 @@ class RobotContainer:
 
 
 class AutonomousCommand:
-    def __init__(self, robot_drive):
-        self.robot_drive = DriveSubsystem()
+    def __init__(self, robot_drive: DriveSubsystem):
+        self.robot_drive = robot_drive
     
     def get_autonomous_command(self) -> Command:
         # Create config for trajectory
@@ -113,7 +113,7 @@ class AutonomousCommand:
         )
         config.setKinematics(DriveConstants.kDriveKinematics)
         
-        # An example trajectory to follow. All units in meters.
+         # An example trajectory to follow. All units in meters.
         example_trajectory = TrajectoryGenerator.generateTrajectory(
             # Start at the origin facing the +X direction
             Pose2d(0, 0, Rotation2d(0)),
@@ -125,25 +125,30 @@ class AutonomousCommand:
         )
 
 
-        theta_controller = ProfiledPIDController(
+        theta_controller = ProfiledPIDControllerRadians(
             AutoConstants.kPThetaController, 0, 0,
-            TrapezoidProfile.Constraints(
+            TrapezoidProfileRadians.Constraints(
                 AutoConstants.kThetaControllerConstraints.maxVelocity,
                 AutoConstants.kThetaControllerConstraints.maxAcceleration
             )
         )
         theta_controller.enableContinuousInput(-3.14159, 3.14159)
 
-        swerve_controller_command = HolonomicDriveController(
+        holonomic_controller = HolonomicDriveController(
+            PIDController(AutoConstants.kPXController, 0, 0),  # X control
+            PIDController(AutoConstants.kPYController, 0, 0),  # Y control
+            theta_controller  # Theta control
+        )
+
+        swerve_controller_command = SwerveControllerCommand(
             example_trajectory,
             self.robot_drive.getPose,
             DriveConstants.kDriveKinematics,
-            PIDController(AutoConstants.kPXController, 0, 0),
-            PIDController(AutoConstants.kPYController, 0, 0),
-            theta_controller,
+            holonomic_controller,
             self.robot_drive.setModuleStates,
             [self.robot_drive]
         )
+
 
         # Reset odometry to the starting pose of the trajectory.
         self.robot_drive.resetOdometry(example_trajectory.initialPose())
@@ -151,5 +156,5 @@ class AutonomousCommand:
         # Run path-following command, then stop at the end.
         return SequentialCommandGroup(
            swerve_controller_command,
-           InstantCommand(lambda: self.robot_drive.drive(0, 0, 0, False), [self.robot_drive])
+           InstantCommand(lambda: self.robot_drive.drive(0, 0, 0, False), self.robot_drive)
         )
