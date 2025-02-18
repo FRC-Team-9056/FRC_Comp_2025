@@ -5,6 +5,7 @@
 #
 
 import Constants
+import math
 from wpilib import XboxController
 from commands2 import SwerveControllerCommand
 from commands2 import RunCommand, Command
@@ -26,6 +27,8 @@ class RobotContainer:
         self.m_coralSubsystem = CoralSubsystem()
         self.m_algaeSubsystem = AlgaeSubsystem()
 
+        self.m_robotDrive.zeroHeading()
+
 
         # The driver's controller
         self.m_driverController = XboxController(OIConstants.kDriverControllerPort)
@@ -40,7 +43,7 @@ class RobotContainer:
                     -self.applyDeadband(self.m_driverController.getLeftY(), OIConstants.kDriveDeadband),
                     -self.applyDeadband(self.m_driverController.getLeftX(), OIConstants.kDriveDeadband),
                     -self.applyDeadband(self.m_driverController.getRightX(), OIConstants.kDriveDeadband),
-                    False),
+                    True),
                 self.m_robotDrive
             )
         )
@@ -105,43 +108,48 @@ class AutonomousCommand:
     def __init__(self, robot_drive: DriveSubsystem):
         self.robot_drive = robot_drive
     
-    def get_autonomous_command(self) -> Command:
-        # Create config for trajectory
+    def get_autonomous_command(self):
         config = TrajectoryConfig(
             AutoConstants.kMaxSpeedMetersPerSecond,
             AutoConstants.kMaxAccelerationMetersPerSecondSquared
         )
         config.setKinematics(DriveConstants.kDriveKinematics)
         
-         # An example trajectory to follow. All units in meters.
-        example_trajectory = TrajectoryGenerator.generateTrajectory(
-            # Start at the origin facing the +X direction
+        #Forward trajectory
+        forward_trajectory = TrajectoryGenerator.generateTrajectory(
             Pose2d(0, 0, Rotation2d(0)),
-            # Pass through these two interior waypoints, making an 's' curve path
-            [Translation2d(1, 1), Translation2d(2, -1)],
-            # End 3 meters straight ahead of where we started, facing forward
-            Pose2d(3, 0, Rotation2d(0)),
+            [],
+            Pose2d(1, 0, Rotation2d(0)),
             config
         )
 
+        self.robot_drive.resetOdometry(forward_trajectory.initialPose())
+
+        #Backward trajectory
+        backward_trajectory = TrajectoryGenerator.generateTrajectory(
+            Pose2d(1, 0, Rotation2d(0)),
+            [],
+            Pose2d(0, 0, Rotation2d(0)),
+            config
+        )
 
         theta_controller = ProfiledPIDControllerRadians(
             AutoConstants.kPThetaController, 0, 0,
             TrapezoidProfileRadians.Constraints(
-                AutoConstants.kThetaControllerConstraints.maxVelocity,
-                AutoConstants.kThetaControllerConstraints.maxAcceleration
+                AutoConstants.kMaxAngularSpeedRadiansPerSecond,
+                AutoConstants.kMaxAngularAccelerationRadiansPerSecond
             )
         )
-        theta_controller.enableContinuousInput(-3.14159, 3.14159)
 
         holonomic_controller = HolonomicDriveController(
             PIDController(AutoConstants.kPXController, 0, 0),  # X control
             PIDController(AutoConstants.kPYController, 0, 0),  # Y control
-            theta_controller  # Theta control
+            theta_controller  # Theta control (ProfiledPIDController)
         )
 
-        swerve_controller_command = SwerveControllerCommand(
-            example_trajectory,
+
+        forward_command = SwerveControllerCommand(
+            forward_trajectory,
             self.robot_drive.getPose,
             DriveConstants.kDriveKinematics,
             holonomic_controller,
@@ -149,12 +157,23 @@ class AutonomousCommand:
             [self.robot_drive]
         )
 
+        backward_command = SwerveControllerCommand(
+            backward_trajectory,
+            self.robot_drive.getPose,
+            DriveConstants.kDriveKinematics,
+            holonomic_controller,
+            self.robot_drive.setModuleStates,
+            [self.robot_drive]
+        )
 
-        # Reset odometry to the starting pose of the trajectory.
-        self.robot_drive.resetOdometry(example_trajectory.initialPose())
-
-        # Run path-following command, then stop at the end.
         return SequentialCommandGroup(
-           swerve_controller_command,
-           InstantCommand(lambda: self.robot_drive.drive(0, 0, 0, False), self.robot_drive)
+            forward_command,
+            InstantCommand(lambda: print("Finished Forward")),
+            InstantCommand(lambda: self.robot_drive.drive(0, 0, 0, False), self.robot_drive),
+
+            InstantCommand(lambda: self.robot_drive.resetOdometry(backward_trajectory.initialPose()), self.robot_drive),
+
+            backward_command,
+            InstantCommand(lambda: print("Finished Backward")),
+            InstantCommand(lambda: self.robot_drive.drive(0, 0, 0, False), self.robot_drive)
         )

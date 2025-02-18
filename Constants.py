@@ -109,6 +109,7 @@ class OIConstants:
 class AutoConstants:
     kMaxSpeedMetersPerSecond = 3
     kMaxAccelerationMetersPerSecondSquared = 3
+    kMaxAngularAccelerationRadiansPerSecond = 3
     kMaxAngularSpeedRadiansPerSecond = math.pi
     kMaxAngularSpeedRadiansPerSecondSquared = math.pi
 

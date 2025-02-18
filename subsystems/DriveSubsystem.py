@@ -52,6 +52,7 @@ class DriveSubsystem(Subsystem):
                 self.m_rearRight.get_position()
             ]
         )
+        
 
     def periodic(self):
         # Update the odometry in the periodic block
@@ -92,7 +93,7 @@ class DriveSubsystem(Subsystem):
                     xSpeedDelivered,
                     ySpeedDelivered,
                     rotDelivered,
-                    Rotation2d.fromDegrees(self.m_gyro.getAngle())
+                    Rotation2d.fromDegrees(-self.m_gyro.getAngle())
                 )
             )
         else:
@@ -136,5 +137,6 @@ class DriveSubsystem(Subsystem):
 
     def getHeading(self):
         return Rotation2d.fromDegrees(self.m_gyro.getAngle()).degrees()
+    
     def getTurnRate(self):
-        return self.m_gyro.getRate() * (DriveConstants.kGyroReversed if -1.0 else 1.0)
+        return self.m_gyro.getRate() * (-1.0 if DriveConstants.kGyroReversed else 1.0)
