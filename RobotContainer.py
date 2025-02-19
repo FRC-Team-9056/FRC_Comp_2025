@@ -8,7 +8,7 @@ import Constants
 import math
 from wpilib import XboxController
 from commands2 import SwerveControllerCommand
-from commands2 import RunCommand, Command
+from commands2 import RunCommand, Command, WaitCommand
 from commands2.button import JoystickButton
 from Constants import OIConstants, AutoConstants, DriveConstants
 from subsystems.DriveSubsystem import DriveSubsystem
@@ -125,11 +125,23 @@ class AutonomousCommand:
 
         self.robot_drive.resetOdometry(forward_trajectory.initialPose())
 
+        # Create a PIDController for turning
+        theta_controller = ProfiledPIDControllerRadians(
+            AutoConstants.kPThetaController, 0, 0,
+            TrapezoidProfileRadians.Constraints(
+                AutoConstants.kMaxAngularSpeedRadiansPerSecond,
+                AutoConstants.kMaxAngularAccelerationRadiansPerSecond
+            )
+        )
+
+        theta_controller.enableContinuousInput(-2 * math.pi, 2 * math.pi)  # Ensure smooth turning
+
+
         #Backward trajectory
         backward_trajectory = TrajectoryGenerator.generateTrajectory(
-            Pose2d(1, 0, Rotation2d(0)),
+            Pose2d(1, 0, Rotation2d(0)),  # Start where the previous move ended, but rotated
             [],
-            Pose2d(0, 0, Rotation2d(0)),
+            Pose2d(0, 0, Rotation2d(math.pi)),  # Move backward another 1 meter
             config
         )
 
@@ -163,17 +175,21 @@ class AutonomousCommand:
             DriveConstants.kDriveKinematics,
             holonomic_controller,
             self.robot_drive.setModuleStates,
-            [self.robot_drive]
+            [self.robot_drive],
+            Rotation2d(math.pi)
         )
+
+         # Wait for 1 second to let the turn finish
+        wait_command = WaitCommand(1)
 
         return SequentialCommandGroup(
             forward_command,
-            InstantCommand(lambda: print("Finished Forward")),
-            InstantCommand(lambda: self.robot_drive.drive(0, 0, 0, False), self.robot_drive),
 
-            InstantCommand(lambda: self.robot_drive.resetOdometry(backward_trajectory.initialPose()), self.robot_drive),
+            RunCommand(lambda: self.robot_drive.drive(0, 0, 0, True), self.robot_drive),
+
+            wait_command,
 
             backward_command,
-            InstantCommand(lambda: print("Finished Backward")),
-            InstantCommand(lambda: self.robot_drive.drive(0, 0, 0, False), self.robot_drive)
+
+            RunCommand(lambda: self.robot_drive.drive(0, 0, 0, True), self.robot_drive)
         )
