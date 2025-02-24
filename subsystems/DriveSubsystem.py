@@ -8,8 +8,10 @@ import navx
 from wpimath.geometry import Pose2d, Rotation2d
 from wpimath.kinematics import ChassisSpeeds, SwerveDrive4Kinematics, SwerveDrive4Odometry, SwerveModuleState, SwerveModulePosition
 from Constants import DriveConstants
-from commands2 import Subsystem
+from commands2 import Subsystem, SwerveControllerCommand
 from subsystems.MAXSwerveModule import MAXSwerveModule
+import Constants
+from wpimath.controller import PIDController, HolonomicDriveController, ProfiledPIDControllerRadians
 
 class DriveSubsystem(Subsystem):
     def __init__(self):
@@ -51,6 +53,31 @@ class DriveSubsystem(Subsystem):
                 self.m_rearLeft.get_position(),
                 self.m_rearRight.get_position()
             ]
+        )
+
+    def followTrajectory(self, trajectory):
+        theta_controller = ProfiledPIDControllerRadians(
+            Constants.AutoConstants.kPThetaController, 0, 0,
+            Constants.TrapezoidProfile.Constraints(
+                Constants.AutoConstants.kMaxAngularSpeedRadiansPerSecond,
+                Constants.AutoConstants.kMaxAngularAccelerationRadiansPerSecond
+            )
+        )
+        theta_controller.enableContinuousInput(-3.14, 3.14)
+
+        holonomic_controller = HolonomicDriveController(
+            PIDController(Constants.AutoConstants.kPXController, 0, 0),
+            PIDController(Constants.AutoConstants.kPYController, 0, 0),
+            theta_controller
+        )
+
+        return SwerveControllerCommand(
+            trajectory,
+            self.getPose,  # Get robot's current pose
+            DriveConstants.kDriveKinematics,
+            holonomic_controller,
+            self.setModuleStates,  # Set swerve module states
+            [self]
         )
         
 

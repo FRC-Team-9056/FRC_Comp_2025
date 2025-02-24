@@ -103,6 +103,7 @@ class ModuleConstants:
 
 class OIConstants:
     kDriverControllerPort = 0
+    kSdriverControllerPort = 1
     kDriveDeadband = 0.02
     kTriggerButtonThreshold = 0.2
 
