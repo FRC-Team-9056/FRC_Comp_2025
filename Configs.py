@@ -53,7 +53,7 @@ class Configs:
         def initialize():
             # Configure arm motor
             Configs.CoralSubsystem.armConfig \
-                .setIdleMode(idleMode=SparkMaxConfig.IdleMode.kCoast) \
+                .setIdleMode(idleMode=SparkMaxConfig.IdleMode.kBrake) \
                 .smartCurrentLimit(40) \
                 .voltageCompensation(12)
             Configs.CoralSubsystem.armConfig.closedLoop \
