@@ -73,13 +73,13 @@ class RobotContainer:
         )
 
          # Left Bumper -> Run tube intake
-        JoystickButton(self.m_driverController, XboxController.Button.kLeftBumper).onFalse(
-            RunCommand(lambda: self.m_coralSubsystem.set_intake_power(), self.m_coralSubsystem)
+        JoystickButton(self.m_driverController, XboxController.Button.kLeftBumper).whileFalse(
+            RunCommand(lambda: self.m_coralSubsystem.stop_intake_command(), self.m_coralSubsystem)
         )
 
         # Right Bumper -> Run tube intake in reverse
-        JoystickButton(self.m_driverController, XboxController.Button.kRightBumper).onFalse(
-            RunCommand(lambda: self.m_coralSubsystem.set_intake_power(), self.m_coralSubsystem)
+        JoystickButton(self.m_driverController, XboxController.Button.kRightBumper).whileFalse(
+            RunCommand(lambda: self.m_coralSubsystem.stop_intake_command(), self.m_coralSubsystem)
         )
 
         # B Button -> Elevator/Arm to human player position, set ball intake to stow when idle
@@ -109,15 +109,6 @@ class RobotContainer:
         # Right Bumper -> Run ball intake in reverse, set to stow when idle
         JoystickButton(self.m_driverController, XboxController.Button.kRightBumper).whileTrue(
             RunCommand(lambda: self.m_algaeSubsystem.reverse_intake_command(), self.m_algaeSubsystem)
-        )
-
-         # left Bumper -> stop ball intake
-        JoystickButton(self.m_sdriverController, XboxController.Button.kLeftBumper).onFalse(
-            RunCommand(lambda: self.m_algaeSubsystem.set_intake_power(), self.m_algaeSubsystem)
-        )
-        # Right Bumper -> stop ball intake in reverse
-        JoystickButton(self.m_driverController, XboxController.Button.kRightBumper).onFalse(
-            RunCommand(lambda: self.m_algaeSubsystem.set_intake_power(), self.m_algaeSubsystem)
         )
     
     print("finished button bindings")

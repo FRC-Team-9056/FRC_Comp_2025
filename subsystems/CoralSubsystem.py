@@ -107,6 +107,10 @@ class CoralSubsystem(Subsystem):
     
      def reverse_intake_command(self):
         self.set_intake_power(CoralSubsystemConstants.IntakeSetpoints.kReverse)
+      
+     def stop_intake_command(self):
+         self.set_intake_power(0)
+
 
      def periodic(self):
         self.move_to_setpoint()
