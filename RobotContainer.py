@@ -50,6 +50,17 @@ class RobotContainer:
                 self.m_robotDrive
             )
         )
+
+        self.m_algaeSubsystem.setDefaultCommand(
+            RunCommand(
+                lambda: self.m_algaeSubsystem.algae_sticks(
+                    -self.applyDeadband(self.m_driverController.getLeftY(), OIConstants.kDriveDeadband),
+                    -self.applyDeadband(self.m_driverController.getRightY(), OIConstants.kDriveDeadband)
+                ),
+                self.m_algaeSubsystem
+            )
+        )
+
     print("finished init")
 
     def applyDeadband(self, value, deadband):
@@ -134,13 +145,12 @@ class RobotContainer:
         )
 
         # left Trigger -> Run ball intake, set to leave out when idle
-        while self.m_sdriverController.getLeftTriggerAxis() > OIConstants.kTriggerButtonThreshold:
-            self.m_algaeSubsystem.algae_in(self.m_sdriverController.getLeftTriggerAxis())
+        JoystickButton(self.m_sdriverController, XboxController.Button.kRightStick).whileTrue(
+            RunCommand(lambda: self.m_algaeSubsystem.algae_run(self.m_sdriverController.getLeftTriggerAxis()))
+        )
 
-        # Right Trigger -> Run ball intake in reverse, set to stow when idle
-        while self.m_sdriverController.getRightTriggerAxis() > OIConstants.kTriggerButtonThreshold:
-            self.m_algaeSubsystem.algae_out(self.m_sdriverController.getRightTriggerAxis())
-    
+        
+
     print("finished button bindings")
 
     def getSimulationTotalCurrentDraw(self):

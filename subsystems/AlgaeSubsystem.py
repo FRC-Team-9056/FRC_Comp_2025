@@ -74,11 +74,9 @@ class AlgaeSubsystem(Subsystem):
             if self.stow_when_idle else self.set_intake_power(AlgaeSubsystemConstants.IntakeSetpoints.kReverse)
         )
     
-    def algae_out(self, pwr):
-        self.intake_motor.set(pwr)
-    
-    def algae_in(self, pwr):
-        self.intake_motor.set(-pwr)
+    def algae_sticks(self, l_stick, r_stick):
+        self.intake_motor.set(l_stick)
+        self.arm_motor.set((r_stick)*(r_stick)*(r_stick)-.5)
 
     def reverse_intake_command(self):
         """Command to reverse the intake motor."""
