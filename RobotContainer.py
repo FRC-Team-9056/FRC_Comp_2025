@@ -101,35 +101,35 @@ class RobotContainer:
         #   RunCommand(lambda: self.m_coralSubsystem.set_setpoint_command(Constants.CoralSubsystemConstants.ElevatorSetpoints.kLevel4), self.m_coralSubsystem)
         #)
 
-        JoystickButton(self.m_driverController, XboxController.Button.kY).whileTrue(
+        JoystickButton(self.m_sdriverController, XboxController.Button.kY).whileTrue(
             RunCommand(lambda: self.m_coralSubsystem.elv_up(), self.m_coralSubsystem)
         )
 
-        JoystickButton(self.m_driverController, XboxController.Button.kY).onFalse(
+        JoystickButton(self.m_sdriverController, XboxController.Button.kY).onFalse(
             RunCommand(lambda: self.m_coralSubsystem.elv_stop(), self.m_coralSubsystem)
         )
 
-        JoystickButton(self.m_driverController, XboxController.Button.kX).whileTrue(
+        JoystickButton(self.m_sdriverController, XboxController.Button.kX).whileTrue(
             RunCommand(lambda: self.m_coralSubsystem.elv_down(), self.m_coralSubsystem)
         )
 
-        JoystickButton(self.m_driverController, XboxController.Button.kX).onFalse(
+        JoystickButton(self.m_sdriverController, XboxController.Button.kX).onFalse(
             RunCommand(lambda: self.m_coralSubsystem.elv_stop(), self.m_coralSubsystem)
         )
 
-        JoystickButton(self.m_driverController, XboxController.Button.kA).whileTrue(
+        JoystickButton(self.m_sdriverController, XboxController.Button.kA).whileTrue(
             RunCommand(lambda: self.m_coralSubsystem.arm_run(), self.m_coralSubsystem)
         )
 
-        JoystickButton(self.m_driverController, XboxController.Button.kA).onFalse(
+        JoystickButton(self.m_sdriverController, XboxController.Button.kA).onFalse(
             RunCommand(lambda: self.m_coralSubsystem.arm_stop(), self.m_coralSubsystem)
         )
 
-        JoystickButton(self.m_driverController, XboxController.Button.kB).whileTrue(
+        JoystickButton(self.m_sdriverController, XboxController.Button.kB).whileTrue(
             RunCommand(lambda: self.m_coralSubsystem.arm_reverse(), self.m_coralSubsystem)
         )
 
-        JoystickButton(self.m_driverController, XboxController.Button.kB).onFalse(
+        JoystickButton(self.m_sdriverController, XboxController.Button.kB).onFalse(
             RunCommand(lambda: self.m_coralSubsystem.arm_stop(), self.m_coralSubsystem)
         )
 
