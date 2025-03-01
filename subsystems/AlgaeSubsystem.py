@@ -29,7 +29,6 @@ class AlgaeSubsystem(Subsystem):
         # Initialize intake SPARK motor
         self.intake_motor = SparkFlex(AlgaeSubsystemConstants.kIntakeMotorCanId, SparkLowLevel.MotorType.kBrushless)
 
-        self.intake_motor.setInverted(False)
 
         # Initialize member variables
         self.stow_when_idle = True
