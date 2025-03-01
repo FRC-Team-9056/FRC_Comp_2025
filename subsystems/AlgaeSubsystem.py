@@ -13,6 +13,7 @@ from wpimath.system.plant import DCMotor
 from Constants import AlgaeSubsystemConstants
 from Constants import SimulationRobotConstants
 from commands2 import Subsystem
+from Configs import Configs
 import math
 
 
@@ -27,6 +28,7 @@ class AlgaeSubsystem(Subsystem):
 
         # Initialize intake SPARK motor
         self.intake_motor = SparkFlex(AlgaeSubsystemConstants.kIntakeMotorCanId, SparkLowLevel.MotorType.kBrushless)
+
         self.intake_motor.setInverted(False)
 
         # Initialize member variables
@@ -73,6 +75,12 @@ class AlgaeSubsystem(Subsystem):
             lambda: self.set_intake_power(AlgaeSubsystemConstants.IntakeSetpoints.kForward)
             if self.stow_when_idle else self.set_intake_power(AlgaeSubsystemConstants.IntakeSetpoints.kReverse)
         )
+    
+    def algae_arm_out(self, pwr):
+        self.arm_motor.set(pwr)
+    
+    def algae_arm_in(self, pwr):
+        self.arm_motor.set(-pwr)
 
     def reverse_intake_command(self):
         """Command to reverse the intake motor."""
@@ -113,9 +121,9 @@ class AlgaeSubsystem(Subsystem):
 
     def periodic(self):
         """Called periodically to update the status and display values."""
-        self.zero_on_user_button()
-        SmartDashboard.putNumber("Algae/Arm/Position", self.arm_encoder.getPosition())
-        SmartDashboard.putNumber("Algae/Intake/Applied Output", self.intake_motor.getAppliedOutput())
+        #self.zero_on_user_button()
+        #SmartDashboard.putNumber("Algae/Arm/Position", self.arm_encoder.getPosition())
+        #SmartDashboard.putNumber("Algae/Intake/Applied Output", self.intake_motor.getAppliedOutput())
         '''
         self.intake_pivot_mechanism.setAngle(
             math.degrees(SimulationRobotConstants.kIntakeMinAngleRads)

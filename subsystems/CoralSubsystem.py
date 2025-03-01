@@ -7,13 +7,14 @@
 import math
 import wpilib
 from wpimath import units
-from rev import SparkMax, SparkLowLevel, SparkFlex
+from rev import SparkMax, SparkLowLevel, SparkFlex, SparkBase
 from wpilib.simulation import ElevatorSim, SingleJointedArmSim
 from commands2 import Subsystem
 from wpilib import SmartDashboard
 from wpimath.system.plant import DCMotor
 from wpilib import RobotController
 from commands2 import Subsystem
+from Configs import Configs
 
 # Constants
 from Constants import CoralSubsystemConstants, SimulationRobotConstants
@@ -37,6 +38,10 @@ class CoralSubsystem(Subsystem):
         self.elevator_encoder = self.elevator_motor.getEncoder()
         
         self.intake_motor = SparkMax(CoralSubsystemConstants.kIntakeMotorCanId, SparkLowLevel.MotorType.kBrushless)
+
+        self.elevator_motor.configure(Configs.CoralSubsystem.elevatorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters)
+        self.intake_motor.configure(Configs.CoralSubsystem.intakeConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters)
+
         
         # State variables
         self.was_reset_by_button = False
@@ -62,8 +67,21 @@ class CoralSubsystem(Subsystem):
 
      def move_to_setpoint(self):
         # Using SPARK controller reference to set targets
-        self.arm_motor.set(self.arm_current_target)
-        self.elevator_motor.set(self.elevator_current_target)
+        self.arm_motor.getClosedLoopController().setReference(self.arm_current_target, SparkFlex.ControlType.kMAXMotionPositionControl)
+        self.elevator_motor.getClosedLoopController().setReference(self.elevator_current_target, SparkFlex.ControlType.kMAXMotionPositionControl)
+      
+     def elv_up(self):
+         self.elevator_motor.set(.99)
+
+     def elv_down(self):
+         self.elevator_motor.set(-0.99)
+
+     def arm_run(self):
+         self.arm_motor.set(.5)
+
+     def arm_reverse(self):
+         self.arm_motor.set(-0.5)
+
     
      def zero_elevator_on_limit_switch(self):
         if not self.was_reset_by_limit and self.elevator_motor.getReverseLimitSwitch().get():
@@ -113,16 +131,10 @@ class CoralSubsystem(Subsystem):
 
 
      def periodic(self):
-        self.move_to_setpoint()
-        self.zero_elevator_on_limit_switch()
-        self.zero_on_user_button()
-
-        # Update SmartDashboard
-        SmartDashboard.putNumber("Coral/Arm/Target Position", self.arm_current_target)
-        SmartDashboard.putNumber("Coral/Arm/Actual Position", self.arm_encoder.getPosition())
-        SmartDashboard.putNumber("Coral/Elevator/Target Position", self.elevator_current_target)
-        SmartDashboard.putNumber("Coral/Elevator/Actual Position", self.elevator_encoder.getPosition())
-        SmartDashboard.putNumber("Coral/Intake/Applied Output", self.intake_motor.getAppliedOutput())
+        #self.move_to_setpoint()
+        #self.zero_elevator_on_limit_switch()
+        # self.zero_on_user_button()
+        pass
 
      def simulation_periodic(self):
         # Update simulation models

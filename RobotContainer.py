@@ -8,7 +8,7 @@ import Constants
 import math
 from wpilib import XboxController
 from commands2 import SwerveControllerCommand
-from commands2 import RunCommand, Command, WaitCommand
+from commands2 import RunCommand, Command, WaitCommand, StartEndCommand
 from commands2.button import JoystickButton
 from Constants import OIConstants, AutoConstants, DriveConstants
 from subsystems.DriveSubsystem import DriveSubsystem
@@ -50,7 +50,6 @@ class RobotContainer:
                 self.m_robotDrive
             )
         )
-
     print("finished init")
 
     def applyDeadband(self, value, deadband):
@@ -63,53 +62,84 @@ class RobotContainer:
         )
 
          # Left Bumper -> Run tube intake
-        JoystickButton(self.m_driverController, XboxController.Button.kLeftBumper).whileTrue(
+        JoystickButton(self.m_sdriverController, XboxController.Button.kLeftBumper).whileTrue(
             RunCommand(lambda: self.m_coralSubsystem.run_intake_command(), self.m_coralSubsystem)
         )
 
         # Right Bumper -> Run tube intake in reverse
-        JoystickButton(self.m_driverController, XboxController.Button.kRightBumper).whileTrue(
+        JoystickButton(self.m_sdriverController, XboxController.Button.kRightBumper).whileTrue(
             RunCommand(lambda: self.m_coralSubsystem.reverse_intake_command(), self.m_coralSubsystem)
         )
 
          # Left Bumper -> Run tube intake
-        JoystickButton(self.m_driverController, XboxController.Button.kLeftBumper).whileFalse(
+        JoystickButton(self.m_sdriverController, XboxController.Button.kLeftBumper).whileFalse(
             RunCommand(lambda: self.m_coralSubsystem.stop_intake_command(), self.m_coralSubsystem)
         )
 
         # Right Bumper -> Run tube intake in reverse
-        JoystickButton(self.m_driverController, XboxController.Button.kRightBumper).whileFalse(
+        JoystickButton(self.m_sdriverController, XboxController.Button.kRightBumper).whileFalse(
             RunCommand(lambda: self.m_coralSubsystem.stop_intake_command(), self.m_coralSubsystem)
         )
 
         # B Button -> Elevator/Arm to human player position, set ball intake to stow when idle
-        JoystickButton(self.m_sdriverController, XboxController.Button.kB).onTrue(
-            RunCommand(lambda: self.m_coralSubsystem.set_setpoint_command(Constants.CoralSubsystemConstants.ElevatorSetpoints.kFeederStation), self.m_coralSubsystem)
-        )
+        #JoystickButton(self.m_sdriverController, XboxController.Button.kB).onTrue(
+        #    RunCommand(lambda: self.m_coralSubsystem.set_setpoint_command(Constants.CoralSubsystemConstants.ElevatorSetpoints.kFeederStation), self.m_coralSubsystem)
+        #)
 
         # A Button -> Elevator/Arm to level 2 position
-        JoystickButton(self.m_sdriverController, XboxController.Button.kA).onTrue(
-            RunCommand(lambda: self.m_coralSubsystem.set_setpoint_command(Constants.CoralSubsystemConstants.ElevatorSetpoints.kLevel2), self.m_coralSubsystem)
-        ) 
+        #JoystickButton(self.m_sdriverController, XboxController.Button.kA).onTrue(
+        #    RunCommand(lambda: self.m_coralSubsystem.set_setpoint_command(Constants.CoralSubsystemConstants.ElevatorSetpoints.kLevel2), self.m_coralSubsystem)
+        #) 
 
         # X Button -> Elevator/Arm to level 3 position
-        JoystickButton(self.m_sdriverController, XboxController.Button.kX).onTrue(
-            RunCommand(lambda: self.m_coralSubsystem.set_setpoint_command(Constants.CoralSubsystemConstants.ElevatorSetpoints.kLevel3), self.m_coralSubsystem)
-        )
+        #JoystickButton(self.m_sdriverController, XboxController.Button.kX).onTrue(
+        #     RunCommand(lambda: self.m_coralSubsystem.set_setpoint_command(Constants.CoralSubsystemConstants.ElevatorSetpoints.kLevel3), self.m_coralSubsystem)
+        #)
 
         # Y Button -> Elevator/Arm to level 4 position
-        JoystickButton(self.m_sdriverController, XboxController.Button.kY).onTrue(
-            RunCommand(lambda: self.m_coralSubsystem.set_setpoint_command(Constants.CoralSubsystemConstants.ElevatorSetpoints.kLevel4), self.m_coralSubsystem)
+        #JoystickButton(self.m_sdriverController, XboxController.Button.kY).onTrue(
+        #   RunCommand(lambda: self.m_coralSubsystem.set_setpoint_command(Constants.CoralSubsystemConstants.ElevatorSetpoints.kLevel4), self.m_coralSubsystem)
+        #)
+
+        JoystickButton(self.m_driverController, XboxController.Button.kY).whileTrue(
+            RunCommand(lambda: self.m_coralSubsystem.elv_up(), self.m_coralSubsystem)
         )
 
-        # left Bumper -> Run ball intake, set to leave out when idle
-        JoystickButton(self.m_sdriverController, XboxController.Button.kLeftBumper).whileTrue(
-            RunCommand(lambda: self.m_algaeSubsystem.run_intake_command(), self.m_algaeSubsystem)
+        JoystickButton(self.m_driverController, XboxController.Button.kY).onFalse(
+            self.m_coralSubsystem.elevator_motor.set(0)
         )
-        # Right Bumper -> Run ball intake in reverse, set to stow when idle
-        JoystickButton(self.m_driverController, XboxController.Button.kRightBumper).whileTrue(
-            RunCommand(lambda: self.m_algaeSubsystem.reverse_intake_command(), self.m_algaeSubsystem)
+
+        JoystickButton(self.m_driverController, XboxController.Button.kX).whileTrue(
+            RunCommand(lambda: self.m_coralSubsystem.elv_down(), self.m_coralSubsystem)
         )
+
+        JoystickButton(self.m_driverController, XboxController.Button.kX).onFalse(
+            self.m_coralSubsystem.elevator_motor.set(0)
+        )
+
+        JoystickButton(self.m_driverController, XboxController.Button.kA).whileTrue(
+            RunCommand(lambda: self.m_coralSubsystem.arm_run(), self.m_coralSubsystem)
+        )
+
+        JoystickButton(self.m_driverController, XboxController.Button.kA).onFalse(
+            self.m_coralSubsystem.arm_motor.set(0)
+        )
+
+        JoystickButton(self.m_driverController, XboxController.Button.kB).whileTrue(
+            RunCommand(lambda: self.m_coralSubsystem.arm_reverse(), self.m_coralSubsystem)
+        )
+
+        JoystickButton(self.m_driverController, XboxController.Button.kB).onFalse(
+            self.m_coralSubsystem.arm_motor.set(0)
+        )
+
+        # left Trigger -> Run ball intake, set to leave out when idle
+        while self.m_sdriverController.getLeftTriggerAxis() > OIConstants.kTriggerButtonThreshold:
+            self.m_algaeSubsystem.algae_arm_in(self.m_sdriverController.getLeftTriggerAxis())
+
+        # Right Trigger -> Run ball intake in reverse, set to stow when idle
+        while self.m_sdriverController.getRightTriggerAxis() > OIConstants.kTriggerButtonThreshold:
+            self.m_algaeSubsystem.algae_arm_out(self.m_sdriverController.getRightTriggerAxis())
     
     print("finished button bindings")
 

@@ -69,7 +69,9 @@ class Configs:
                 .smartCurrentLimit(50) \
                 .voltageCompensation(12)
             Configs.CoralSubsystem.elevatorConfig.limitSwitch.reverseLimitSwitchEnabled(True)
-            Configs.CoralSubsystem.elevatorConfig.closedLoop.outputRange(-1, 1)
+            Configs.CoralSubsystem.elevatorConfig.closedLoop \
+                .outputRange(-1, 1) \
+                .setFeedbackSensor(Configs.CoralSubsystem.elevatorConfig.closedLoop.FeedbackSensor.kNoSensor)
             Configs.CoralSubsystem.elevatorConfig.closedLoop.maxMotion \
                 .maxVelocity(4200) \
                 .maxAcceleration(6000) \
