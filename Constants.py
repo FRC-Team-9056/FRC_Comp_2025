@@ -11,18 +11,18 @@ class CoralSubsystemConstants:
     kIntakeMotorCanId = 2
     
     class ElevatorSetpoints:
-        kFeederStation = 0
-        kLevel1 = 0
-        kLevel2 = 0
-        kLevel3 = 100
-        kLevel4 = 150
+        kFeederStation = 0.0
+        kLevel1 = 5.0
+        kLevel2 = 15.0
+        kLevel3 = 25.0
+        kLevel4 = 35.0
 
     class ArmSetpoints:
-        kFeederStation = 33
-        kLevel1 = 0
-        kLevel2 = 2
-        kLevel3 = 2
-        kLevel4 = 19
+        kFeederStation = 0.0
+        kLevel1 = 10.0
+        kLevel2 = 20.0
+        kLevel3 = 30.0
+        kLevel4 = 40.0
 
     class IntakeSetpoints:
         kForward = 0.5
