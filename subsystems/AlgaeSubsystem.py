@@ -5,7 +5,7 @@
 #
 
 import wpilib
-from rev import SparkFlex, SparkLowLevel
+from rev import SparkFlex, SparkLowLevel, SparkMax
 from wpilib import MechanismLigament2d
 from wpilib.simulation import SingleJointedArmSim
 from wpilib import SmartDashboard
@@ -23,11 +23,10 @@ class AlgaeSubsystem(Subsystem):
 
         # Initialize arm SPARK motor and encoder
         self.arm_motor = SparkFlex(AlgaeSubsystemConstants.kPivotMotorCanId, SparkLowLevel.MotorType.kBrushless)
-        self.arm_motor.setInverted(False)  # Set motor direction if necessary
         self.arm_encoder = self.arm_motor.getEncoder()
 
         # Initialize intake SPARK motor
-        self.intake_motor = SparkFlex(AlgaeSubsystemConstants.kIntakeMotorCanId, SparkLowLevel.MotorType.kBrushless)
+        self.intake_motor = SparkMax(AlgaeSubsystemConstants.kIntakeMotorCanId, SparkLowLevel.MotorType.kBrushless)
 
 
         # Initialize member variables
@@ -75,11 +74,11 @@ class AlgaeSubsystem(Subsystem):
             if self.stow_when_idle else self.set_intake_power(AlgaeSubsystemConstants.IntakeSetpoints.kReverse)
         )
     
-    def algae_arm_out(self, pwr):
-        self.arm_motor.set(pwr)
+    def algae_out(self, pwr):
+        self.intake_motor.set(pwr)
     
-    def algae_arm_in(self, pwr):
-        self.arm_motor.set(-pwr)
+    def algae_in(self, pwr):
+        self.intake_motor.set(-pwr)
 
     def reverse_intake_command(self):
         """Command to reverse the intake motor."""

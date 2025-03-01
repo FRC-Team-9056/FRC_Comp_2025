@@ -75,12 +75,18 @@ class CoralSubsystem(Subsystem):
 
      def elv_down(self):
          self.elevator_motor.set(-0.99)
+      
+     def elv_stop(self):
+         self.elevator_motor.set(0)
 
      def arm_run(self):
          self.arm_motor.set(.5)
 
      def arm_reverse(self):
          self.arm_motor.set(-0.5)
+
+     def arm_stop(self):
+         self.arm_motor.set(0)
 
     
      def zero_elevator_on_limit_switch(self):

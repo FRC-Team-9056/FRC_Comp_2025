@@ -106,7 +106,7 @@ class RobotContainer:
         )
 
         JoystickButton(self.m_driverController, XboxController.Button.kY).onFalse(
-            self.m_coralSubsystem.elevator_motor.set(0)
+            RunCommand(lambda: self.m_coralSubsystem.elv_stop(), self.m_coralSubsystem)
         )
 
         JoystickButton(self.m_driverController, XboxController.Button.kX).whileTrue(
@@ -114,7 +114,7 @@ class RobotContainer:
         )
 
         JoystickButton(self.m_driverController, XboxController.Button.kX).onFalse(
-            self.m_coralSubsystem.elevator_motor.set(0)
+            RunCommand(lambda: self.m_coralSubsystem.elv_stop(), self.m_coralSubsystem)
         )
 
         JoystickButton(self.m_driverController, XboxController.Button.kA).whileTrue(
@@ -122,7 +122,7 @@ class RobotContainer:
         )
 
         JoystickButton(self.m_driverController, XboxController.Button.kA).onFalse(
-            self.m_coralSubsystem.arm_motor.set(0)
+            RunCommand(lambda: self.m_coralSubsystem.arm_stop(), self.m_coralSubsystem)
         )
 
         JoystickButton(self.m_driverController, XboxController.Button.kB).whileTrue(
@@ -130,16 +130,16 @@ class RobotContainer:
         )
 
         JoystickButton(self.m_driverController, XboxController.Button.kB).onFalse(
-            self.m_coralSubsystem.arm_motor.set(0)
+            RunCommand(lambda: self.m_coralSubsystem.arm_stop(), self.m_coralSubsystem)
         )
 
         # left Trigger -> Run ball intake, set to leave out when idle
         while self.m_sdriverController.getLeftTriggerAxis() > OIConstants.kTriggerButtonThreshold:
-            self.m_algaeSubsystem.algae_arm_in(self.m_sdriverController.getLeftTriggerAxis())
+            self.m_algaeSubsystem.algae_in(self.m_sdriverController.getLeftTriggerAxis())
 
         # Right Trigger -> Run ball intake in reverse, set to stow when idle
         while self.m_sdriverController.getRightTriggerAxis() > OIConstants.kTriggerButtonThreshold:
-            self.m_algaeSubsystem.algae_arm_out(self.m_sdriverController.getRightTriggerAxis())
+            self.m_algaeSubsystem.algae_out(self.m_sdriverController.getRightTriggerAxis())
     
     print("finished button bindings")
 
