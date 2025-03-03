@@ -84,24 +84,24 @@ class Configs:
                 .smartCurrentLimit(40)
 
     class AlgaeSubsystem:
-        intakeConfig = SparkMaxConfig()
-        armConfig = SparkFlexConfig()
+        intakeConfig = SparkFlexConfig()
+        armConfig = SparkMaxConfig()
 
         @staticmethod
         def initialize():
             # Configure arm motor
             Configs.AlgaeSubsystem.armConfig \
                 .smartCurrentLimit(40) \
-                .setIdleMode(SparkFlexConfig.IdleMode.kBrake)
-            Configs.AlgaeSubsystem.armConfig.closedLoop \
-                .setFeedbackSensor(Configs.AlgaeSubsystem.armConfig.closedLoop.FeedbackSensor.kPrimaryEncoder) \
-                .pid(0.1,0,0) \
-                .outputRange(-0.5, 0.5)
+                .setIdleMode(SparkMaxConfig.IdleMode.kBrake)
+            #Configs.AlgaeSubsystem.armConfig.closedLoop \
+            #    .setFeedbackSensor(Configs.AlgaeSubsystem.armConfig.closedLoop.FeedbackSensor.kPrimaryEncoder) \
+            #    .pid(0.1,0,0) \
+            #    .outputRange(-0.5, 0.5)
 
             # Configure intake motor
             Configs.AlgaeSubsystem.intakeConfig \
                 .inverted(True) \
-                .setIdleMode(SparkMaxConfig.IdleMode.kBrake) \
+                .setIdleMode(SparkFlexConfig.IdleMode.kBrake) \
                 .smartCurrentLimit(40)
 
 # Call initialization functions

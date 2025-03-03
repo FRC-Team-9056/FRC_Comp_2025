@@ -54,8 +54,8 @@ class RobotContainer:
         self.m_algaeSubsystem.setDefaultCommand(
             RunCommand(
                 lambda: self.m_algaeSubsystem.algae_sticks(
-                    -self.applyDeadband(self.m_driverController.getLeftY(), OIConstants.kDriveDeadband),
-                    -self.applyDeadband(self.m_driverController.getRightY(), OIConstants.kDriveDeadband)
+                    -self.applyDeadband(self.m_sdriverController.getLeftY(), OIConstants.kDriveDeadband),
+                    -self.applyDeadband(self.m_sdriverController.getRightY(), OIConstants.kDriveDeadband)
                 ),
                 self.m_algaeSubsystem
             )
@@ -73,22 +73,22 @@ class RobotContainer:
         )
 
          # Left Bumper -> Run tube intake
-        JoystickButton(self.m_sdriverController, XboxController.Button.kLeftBumper).whileTrue(
+        JoystickButton(self.m_sdriverController, XboxController.Button.kRightBumper).whileTrue(
             RunCommand(lambda: self.m_coralSubsystem.run_intake_command(), self.m_coralSubsystem)
         )
 
         # Right Bumper -> Run tube intake in reverse
-        JoystickButton(self.m_sdriverController, XboxController.Button.kRightBumper).whileTrue(
+        JoystickButton(self.m_sdriverController, XboxController.Button.kLeftBumper).whileTrue(
             RunCommand(lambda: self.m_coralSubsystem.reverse_intake_command(), self.m_coralSubsystem)
         )
 
          # Left Bumper -> Run tube intake
-        JoystickButton(self.m_sdriverController, XboxController.Button.kLeftBumper).whileFalse(
+        JoystickButton(self.m_sdriverController, XboxController.Button.kRightBumper).whileFalse(
             RunCommand(lambda: self.m_coralSubsystem.stop_intake_command(), self.m_coralSubsystem)
         )
 
         # Right Bumper -> Run tube intake in reverse
-        JoystickButton(self.m_sdriverController, XboxController.Button.kRightBumper).whileFalse(
+        JoystickButton(self.m_sdriverController, XboxController.Button.kLeftBumper).whileFalse(
             RunCommand(lambda: self.m_coralSubsystem.stop_intake_command(), self.m_coralSubsystem)
         )
 
@@ -142,11 +142,6 @@ class RobotContainer:
 
         JoystickButton(self.m_sdriverController, XboxController.Button.kB).onFalse(
             RunCommand(lambda: self.m_coralSubsystem.arm_stop(), self.m_coralSubsystem)
-        )
-
-        # left Trigger -> Run ball intake, set to leave out when idle
-        JoystickButton(self.m_sdriverController, XboxController.Button.kRightStick).whileTrue(
-            RunCommand(lambda: self.m_algaeSubsystem.algae_run(self.m_sdriverController.getLeftTriggerAxis()))
         )
 
         
