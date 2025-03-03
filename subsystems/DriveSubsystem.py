@@ -8,8 +8,10 @@ import navx
 from wpimath.geometry import Pose2d, Rotation2d
 from wpimath.kinematics import ChassisSpeeds, SwerveDrive4Kinematics, SwerveDrive4Odometry, SwerveModuleState, SwerveModulePosition
 from Constants import DriveConstants
-from commands2 import Subsystem
+from commands2 import Subsystem, SwerveControllerCommand
 from subsystems.MAXSwerveModule import MAXSwerveModule
+import Constants
+from wpimath.controller import PIDController, HolonomicDriveController, ProfiledPIDControllerRadians
 
 class DriveSubsystem(Subsystem):
     def __init__(self):
@@ -53,6 +55,32 @@ class DriveSubsystem(Subsystem):
             ]
         )
 
+    def followTrajectory(self, trajectory):
+        theta_controller = ProfiledPIDControllerRadians(
+            Constants.AutoConstants.kPThetaController, 0, 0,
+            Constants.TrapezoidProfile.Constraints(
+                Constants.AutoConstants.kMaxAngularSpeedRadiansPerSecond,
+                Constants.AutoConstants.kMaxAngularAccelerationRadiansPerSecond
+            )
+        )
+        theta_controller.enableContinuousInput(-3.14, 3.14)
+
+        holonomic_controller = HolonomicDriveController(
+            PIDController(Constants.AutoConstants.kPXController, 0, 0),
+            PIDController(Constants.AutoConstants.kPYController, 0, 0),
+            theta_controller
+        )
+
+        return SwerveControllerCommand(
+            trajectory,
+            self.getPose,  # Get robot's current pose
+            DriveConstants.kDriveKinematics,
+            holonomic_controller,
+            self.setModuleStates,  # Set swerve module states
+            [self]
+        )
+        
+
     def periodic(self):
         # Update the odometry in the periodic block
         self.m_odometry.update(
@@ -92,7 +120,7 @@ class DriveSubsystem(Subsystem):
                     xSpeedDelivered,
                     ySpeedDelivered,
                     rotDelivered,
-                    Rotation2d.fromDegrees(self.m_gyro.getAngle())
+                    Rotation2d.fromDegrees(-self.m_gyro.getAngle())
                 )
             )
         else:
@@ -135,6 +163,7 @@ class DriveSubsystem(Subsystem):
         self.m_gyro.reset()
 
     def getHeading(self):
-        return Rotation2d.fromDegrees(self.m_gyro.getAngle()).degrees()
+        return Rotation2d.fromDegrees(self.m_gyro.getAngle())
+    
     def getTurnRate(self):
-        return self.m_gyro.getRate() * (DriveConstants.kGyroReversed if -1.0 else 1.0)
+        return self.m_gyro.getRate() * (-1.0 if DriveConstants.kGyroReversed else 1.0)
