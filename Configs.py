@@ -61,15 +61,22 @@ class Configs:
                 .pid(0.1,0,0) \
                 .outputRange(-1, 1) \
             #!!!!!!!!The Numbers Might need to get changed!!!!!!!! -----Alex
-            Configs.CoralSubsystem.armConfig.closedLoop.maxMotion.maxVelocity(2000).maxAcceleration(10000).allowedClosedLoopError(0.25)
+            Configs.CoralSubsystem.armConfig.closedLoop.maxMotion \
+                .maxVelocity(2000) \
+                .maxAcceleration(10000) \
+                .allowedClosedLoopError(0.25)
 
             # Configure elevator motor
             Configs.CoralSubsystem.elevatorConfig \
                 .setIdleMode(idleMode=SparkFlexConfig.IdleMode.kCoast) \
                 .smartCurrentLimit(50) \
                 .voltageCompensation(12)
-            Configs.CoralSubsystem.elevatorConfig.limitSwitch.reverseLimitSwitchEnabled(True)
-            Configs.CoralSubsystem.elevatorConfig.closedLoop.outputRange(-1, 1)
+            Configs.CoralSubsystem.elevatorConfig.limitSwitch \
+                .reverseLimitSwitchEnabled(True) \
+                .reverseLimitSwitchType(Configs.CoralSubsystem.elevatorConfig.limitSwitch.Type.kNormallyOpen)
+            Configs.CoralSubsystem.elevatorConfig.closedLoop \
+                .outputRange(-1, 1) \
+                .setFeedbackSensor(Configs.CoralSubsystem.armConfig.closedLoop.FeedbackSensor.kPrimaryEncoder)
             Configs.CoralSubsystem.elevatorConfig.closedLoop.maxMotion \
                 .maxVelocity(4200) \
                 .maxAcceleration(6000) \
@@ -95,6 +102,10 @@ class Configs:
                 .setFeedbackSensor(Configs.AlgaeSubsystem.armConfig.closedLoop.FeedbackSensor.kPrimaryEncoder) \
                 .pid(0.1,0,0) \
                 .outputRange(-0.5, 0.5)
+            Configs.AlgaeSubsystem.armConfig.maxMotion \
+                .maxVelocity(2000) \
+                .maxAcceleration(10000) \
+                .allowedClosedLoopError(0.25)
 
             # Configure intake motor
             Configs.AlgaeSubsystem.intakeConfig \

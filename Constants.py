@@ -13,7 +13,7 @@ class CoralSubsystemConstants:
     class ElevatorSetpoints:
         kFeederStation = 0
         kLevel1 = 0
-        kLevel2 = 0
+        kLevel2 = 50
         kLevel3 = 100
         kLevel4 = 150
 
@@ -33,9 +33,9 @@ class AlgaeSubsystemConstants:
     kPivotMotorCanId = 6
 
     class ArmSetpoints:
-        kStow = 18.5
+        kStow = 0
         kHold = 11.5
-        kDown = 0
+        kDown = 18.5
 
     class IntakeSetpoints:
         kForward = 0.5
@@ -103,6 +103,7 @@ class ModuleConstants:
 
 class OIConstants:
     kDriverControllerPort = 0
+    kOperatorControllerPort = 1
     kDriveDeadband = 0.02
     kTriggerButtonThreshold = 0.2
 
