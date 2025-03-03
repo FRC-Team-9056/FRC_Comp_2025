@@ -102,7 +102,7 @@ class Configs:
                 .setFeedbackSensor(Configs.AlgaeSubsystem.armConfig.closedLoop.FeedbackSensor.kPrimaryEncoder) \
                 .pid(0.1,0,0) \
                 .outputRange(-0.5, 0.5)
-            Configs.AlgaeSubsystem.armConfig.maxMotion \
+            Configs.AlgaeSubsystem.armConfig.closedLoop.maxMotion \
                 .maxVelocity(2000) \
                 .maxAcceleration(10000) \
                 .allowedClosedLoopError(0.25)

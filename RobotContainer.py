@@ -191,8 +191,6 @@ class AutonomousCommand:
 
             RunCommand(lambda: self.robot_drive.drive(0, 0, 0, True), self.robot_drive),
 
-            RunCommand(lambda: self.CoralSubsystem.reverse_intake_command(), self.CoralSubsystem),
-
             wait_command,
 
             backward_command,
