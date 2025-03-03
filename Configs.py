@@ -76,6 +76,7 @@ class Configs:
                 .reverseLimitSwitchType(Configs.CoralSubsystem.elevatorConfig.limitSwitch.Type.kNormallyOpen)
             Configs.CoralSubsystem.elevatorConfig.closedLoop \
                 .outputRange(-1, 1) \
+                .pid(0.1,0,0) \
                 .setFeedbackSensor(Configs.CoralSubsystem.armConfig.closedLoop.FeedbackSensor.kPrimaryEncoder)
             Configs.CoralSubsystem.elevatorConfig.closedLoop.maxMotion \
                 .maxVelocity(4200) \
