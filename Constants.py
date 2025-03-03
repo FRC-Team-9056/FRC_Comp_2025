@@ -25,7 +25,7 @@ class CoralSubsystemConstants:
         kLevel4 = 40.0
 
     class IntakeSetpoints:
-        kForward = 0.5
+        kForward = 0.9
         kReverse = -0.5
 
 class AlgaeSubsystemConstants:

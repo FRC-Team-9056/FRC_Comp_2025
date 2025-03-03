@@ -28,6 +28,9 @@ class AlgaeSubsystem(Subsystem):
         # Initialize intake SPARK motor
         self.intake_motor = SparkMax(AlgaeSubsystemConstants.kIntakeMotorCanId, SparkLowLevel.MotorType.kBrushless)
 
+        self.arm_motor.configure(Configs.AlgaeSubsystem.armConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters)
+        self.intake_motor.configure(Configs.AlgaeSubsystem.intakeConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters)
+
 
         # Initialize member variables
         self.stow_when_idle = True
@@ -76,7 +79,7 @@ class AlgaeSubsystem(Subsystem):
     
     def algae_sticks(self, l_stick, r_stick):
         self.intake_motor.set(l_stick)
-        self.arm_motor.set((r_stick)*(r_stick)*(r_stick)-.5)
+        self.arm_motor.set((r_stick*r_stick*r_stick)-.5)
 
     def reverse_intake_command(self):
         """Command to reverse the intake motor."""
