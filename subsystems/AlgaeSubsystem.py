@@ -103,9 +103,9 @@ class AlgaeSubsystem(Subsystem):
 
     def reverse_intake_command(self):
         """Command to reverse the intake motor."""
-        self.stow_when_idle = True
         self.set_intake_power(AlgaeSubsystemConstants.IntakeSetpoints.kReverse)
         self.set_intake_position(AlgaeSubsystemConstants.IntakeSetpoints.kHold)
+        self.stow_command()
 
     def stow_command(self):
         """Command to stow the intake arm."""
@@ -123,7 +123,6 @@ class AlgaeSubsystem(Subsystem):
     def periodic(self):
         """Called periodically to update the status and display values."""
         self.zero_on_user_button()
-
         """
         SmartDashboard.putNumber("Algae/Arm/Position", self.arm_encoder.getPosition())
         SmartDashboard.putNumber("Algae/Intake/Applied Output", self.intake_motor.getAppliedOutput())

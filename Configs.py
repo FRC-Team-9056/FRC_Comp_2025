@@ -98,7 +98,8 @@ class Configs:
             # Configure arm motor
             Configs.AlgaeSubsystem.armConfig \
                 .smartCurrentLimit(40) \
-                .setIdleMode(SparkFlexConfig.IdleMode.kBrake)
+                .setIdleMode(SparkFlexConfig.IdleMode.kBrake) \
+                .inverted(True)
             Configs.AlgaeSubsystem.armConfig.closedLoop \
                 .setFeedbackSensor(Configs.AlgaeSubsystem.armConfig.closedLoop.FeedbackSensor.kPrimaryEncoder) \
                 .pid(0.1,0,0) \
