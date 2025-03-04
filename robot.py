@@ -8,16 +8,19 @@
 import wpilib
 from commands2 import CommandScheduler
 from RobotContainer import RobotContainer, AutonomousCommand
-from subsystems import DriveSubsystem
 
 class Robot(wpilib.TimedRobot):
+    """Sets up the robot and its various modes for competition"""
     def __init__(self):
         super().__init__()
         self.m_autonomousCommand = None
         self.m_robotContainer = None
 
     def robotInit(self):
-        """This function is run when the robot is first started up and should be used for any initialization code."""
+        """
+        This function is run when the robot is first started up
+        and should be used for any initialization code.
+        """
         # Instantiate the RobotContainer. This will perform all button bindings and setup.
         self.m_robotContainer = RobotContainer()
 
@@ -36,14 +39,16 @@ class Robot(wpilib.TimedRobot):
 
     def autonomousInit(self):
         """This function is called once when autonomous mode starts."""
-        self.m_autonomousCommand = AutonomousCommand(self.m_robotContainer.m_robotDrive)
+        self.m_autonomousCommand = AutonomousCommand(
+            self.m_robotContainer.m_robotDrive,
+            self.m_robotContainer.m_coralSubsystem
+            )
         if hasattr(self.m_autonomousCommand, "get_autonomous_command"):
             self.m_autonomousCommand = self.m_autonomousCommand.get_autonomous_command()
 
         #Schedule the autonomous command if it exists
         if self.m_autonomousCommand:
-           self.m_autonomousCommand.schedule()
-        pass
+            self.m_autonomousCommand.schedule()
 
     def autonomousPeriodic(self):
         """This function is called periodically during autonomous."""
@@ -57,7 +62,6 @@ class Robot(wpilib.TimedRobot):
 
     def teleopPeriodic(self):
         """This function is called periodically during teleop mode."""
-        pass
 
     def testInit(self):
         """This function is called once at the start of test mode."""
@@ -67,4 +71,5 @@ class Robot(wpilib.TimedRobot):
     def testPeriodic(self):
         """This function is called periodically during test mode."""
         pass
+
     

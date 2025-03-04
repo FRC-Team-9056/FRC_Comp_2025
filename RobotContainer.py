@@ -4,23 +4,23 @@
 # the WPILib BSD license file in the root directory of this project.
 #
 
-import Constants
 import math
-from wpilib import XboxController
-from commands2 import SwerveControllerCommand
-from commands2 import RunCommand, Command, WaitCommand
-from commands2.button import JoystickButton
-from Constants import OIConstants, AutoConstants, DriveConstants
+from commands2 import RunCommand, WaitCommand, SequentialCommandGroup, SwerveControllerCommand
+from commands2.button import CommandXboxController
+from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator, TrapezoidProfileRadians
+from wpimath.geometry import Pose2d, Rotation2d
+from wpimath.controller import PIDController, HolonomicDriveController, ProfiledPIDControllerRadians
+# Our Libaries/functions/constants
+from Constants import OIConstants, AutoConstants, DriveConstants, CoralSubsystemConstants
 from subsystems.DriveSubsystem import DriveSubsystem
 from subsystems.AlgaeSubsystem import AlgaeSubsystem
 from subsystems.CoralSubsystem import CoralSubsystem
-from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator, TrapezoidProfile, TrapezoidProfileRadians
-from wpimath.geometry import Pose2d, Rotation2d, Translation2d
-from wpimath.controller import PIDController, ProfiledPIDController, HolonomicDriveController, ProfiledPIDControllerRadians
-from commands2 import SequentialCommandGroup, InstantCommand
-
 
 class RobotContainer:
+    """
+    Container class for the robot subystems, default commands, simple
+    autonomous routines, and controller bindings
+    """
     def __init__(self):
         # The robot's subsystems
         self.m_robotDrive = DriveSubsystem()
@@ -29,15 +29,15 @@ class RobotContainer:
 
         self.m_robotDrive.zeroHeading()
 
-
-        # The driver's controller
-        self.m_driverController = XboxController(OIConstants.kDriverControllerPort)
-        self.m_operatorController= XboxController(OIConstants.kOperatorControllerPort)
+        # The controller port assignments
+        self.m_driverController = CommandXboxController(OIConstants.kDriverControllerPort)
+        self.m_operatorController= CommandXboxController(OIConstants.kOperatorControllerPort)
 
         # Configure the button bindings
         self.configureButtonBindings()
 
         # Configure default comemands
+        ## Drive default
         self.m_robotDrive.setDefaultCommand(
             RunCommand(
                 lambda: self.m_robotDrive.drive(
@@ -48,71 +48,114 @@ class RobotContainer:
                 self.m_robotDrive
             )
         )
-
-    print("finished init")
+        ## Algae Default
+        self.m_algaeSubsystem.setDefaultCommand(
+            RunCommand(
+                lambda: self.m_algaeSubsystem.idle_command(),
+                self.m_algaeSubsystem
+            )
+        )
 
     def applyDeadband(self, value, deadband):
-        """Apply a deadband to a joystick input"""
+        """Applys a deadband to a joystick input"""
         return value if abs(value) > deadband else 0.0
 
     def configureButtonBindings(self):
+        """Configures the default button bindings"""
         # Locks the wheels into an X shape so that they cannot move
-        JoystickButton(self.m_driverController, XboxController.Button.kRightStick).whileTrue(
-            RunCommand(lambda: self.m_robotDrive.setX(), self.m_robotDrive)
+        self.m_driverController.rightStick().whileTrue(
+            RunCommand(
+                lambda: self.m_robotDrive.setX(),
+                self.m_robotDrive
+            )
         )
 
         ### Coral Subystem Commands ### 
          # Left Bumper -> Run tube intake
-        JoystickButton(self.m_operatorController, XboxController.Button.kLeftBumper).whileTrue(
-            RunCommand(lambda: self.m_coralSubsystem.run_intake_command(), self.m_coralSubsystem)
+        self.m_operatorController.leftBumper().whileTrue(
+            RunCommand(
+                lambda: self.m_coralSubsystem.run_intake_command(),
+                self.m_coralSubsystem
+            )
         )
 
         # Right Bumper -> Run tube intake in reverse
-        JoystickButton(self.m_operatorController, XboxController.Button.kRightBumper).whileTrue(
-            RunCommand(lambda: self.m_coralSubsystem.reverse_intake_command(), self.m_coralSubsystem)
+        self.m_operatorController.rightBumper().whileTrue(
+            RunCommand(
+                lambda: self.m_coralSubsystem.reverse_intake_command(),
+                self.m_coralSubsystem
+            )
         )
 
         # B Button -> Elevator/Arm to human player position, set ball intake to stow when idle
-        JoystickButton(self.m_operatorController, XboxController.Button.kB).onTrue(
-            RunCommand(lambda: self.m_coralSubsystem.set_setpoint_command(Constants.CoralSubsystemConstants.ElevatorSetpoints.kFeederStation), self.m_coralSubsystem)
+        self.m_operatorController.b().onTrue(
+            RunCommand(
+                lambda: self.m_coralSubsystem.set_setpoint_command(
+                CoralSubsystemConstants.ElevatorSetpoints.kFeederStation
+                ),
+                self.m_coralSubsystem
+            )
         )
 
         # A Button -> Elevator/Arm to level 2 position
-        JoystickButton(self.m_operatorController, XboxController.Button.kA).onTrue(
-            RunCommand(lambda: self.m_coralSubsystem.set_setpoint_command(Constants.CoralSubsystemConstants.ElevatorSetpoints.kLevel1), self.m_coralSubsystem)
-        ) 
+        self.m_operatorController.a().onTrue(
+            RunCommand(
+                lambda: self.m_coralSubsystem.set_setpoint_command(
+                CoralSubsystemConstants.ElevatorSetpoints.kLevel1
+                ),
+                self.m_coralSubsystem
+            )
+        )
 
         # X Button -> Elevator/Arm to level 3 position
-        JoystickButton(self.m_operatorController, XboxController.Button.kX).onTrue(
-            RunCommand(lambda: self.m_coralSubsystem.set_setpoint_command(Constants.CoralSubsystemConstants.ElevatorSetpoints.kLevel2), self.m_coralSubsystem)
+        self.m_operatorController.x().onTrue(
+            RunCommand(
+                lambda: self.m_coralSubsystem.set_setpoint_command(
+                CoralSubsystemConstants.ElevatorSetpoints.kLevel2
+                ),
+                self.m_coralSubsystem
+            )
         )
 
         # Y Button -> Elevator/Arm to level 4 position
-        JoystickButton(self.m_operatorController, XboxController.Button.kY).onTrue(
-            RunCommand(lambda: self.m_coralSubsystem.set_setpoint_command(Constants.CoralSubsystemConstants.ElevatorSetpoints.kLevel3), self.m_coralSubsystem)
+        self.m_operatorController.y().onTrue(
+            RunCommand(lambda: self.m_coralSubsystem.set_setpoint_command(
+                CoralSubsystemConstants.ElevatorSetpoints.kLevel3
+                ),
+                self.m_coralSubsystem
+            )
         )
 
         ### Algae Subsystem Controlls ###
 
-        # Right Trigger -> Run ball intake, set to leave out when idle
-        while self.m_operatorController.getRightTriggerAxis() > OIConstants.kTriggerButtonThreshold:
-            RunCommand(lambda: self.m_algaeSubsystem.run_intake_command(), self.m_algaeSubsystem)
+        # Left Trigger -> Run ball intake, set to leave out when idle
+        self.m_operatorController.leftTrigger(OIConstants.kTriggerButtonThreshold).whileTrue(
+            RunCommand(
+                lambda: self.m_algaeSubsystem.run_intake_command(),
+                self.m_algaeSubsystem
+            )
+        )
 
-        # Left Trigger -> Run ball intake in reverse, set to stow when idle
-        while self.m_operatorController.getLeftTriggerAxis() > OIConstants.kTriggerButtonThreshold:
-            RunCommand(lambda: self.m_algaeSubsystem.reverse_intake_command(), self.m_algaeSubsystem)    
+        # Right Trigger -> Run ball intake in reverse, set to stow when idle
+        self.m_operatorController.rightTrigger(OIConstants.kTriggerButtonThreshold).whileTrue(
+            RunCommand(
+                lambda: self.m_algaeSubsystem.reverse_intake_command(), 
+                self.m_algaeSubsystem
+            )
+        )
     '''
     def getSimulationTotalCurrentDraw(self):
         # For each subsystem with simulation, returns total current draw
         return self.m_coralSubsystem.get_simulation_current_draw() + self.m_algaeSubsystem.get_simulation_current_draw()
     '''
 
-
 class AutonomousCommand:
-    def __init__(self, robot_drive: DriveSubsystem):
+    def __init__(self, robot_drive: DriveSubsystem, coral_system: CoralSubsystem):
         self.robot_drive = robot_drive
+        self.coral_system = coral_system
     
     def get_autonomous_command(self):
+        """returns the default autonomous command to run"""
         config = TrajectoryConfig(
             AutoConstants.kMaxSpeedMetersPerSecond,
             AutoConstants.kMaxAccelerationMetersPerSecondSquared
@@ -187,13 +230,25 @@ class AutonomousCommand:
         wait_command = WaitCommand(1)
 
         return SequentialCommandGroup(
+            # Drive robot forward
             forward_command,
-
-            RunCommand(lambda: self.robot_drive.drive(0, 0, 0, True), self.robot_drive),
-
-            wait_command,
-
-            backward_command,
-
-            RunCommand(lambda: self.robot_drive.drive(0, 0, 0, True), self.robot_drive)
+            # Stop robot in place
+            RunCommand(lambda: self.robot_drive.setX(), self.robot_drive),
+            # Spit out some coral at level 1
+            SequentialCommandGroup(
+                RunCommand(
+                    lambda: self.coral_system.set_setpoint_command(
+                        CoralSubsystemConstants.ElevatorSetpoints.kLevel1
+                    ),
+                    self.coral_system
+                ),
+                RunCommand(
+                    lambda: self.coral_system.move_to_setpoint(),
+                    self.coral_system
+                ),
+                RunCommand(
+                    lambda: self.coral_system.reverse_intake_command(),
+                    self.coral_system
+                ).withTimeout(2)
+            )
         )

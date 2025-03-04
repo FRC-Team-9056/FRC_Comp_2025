@@ -4,14 +4,14 @@
 # the WPILib BSD license file in the root directory of this project.
 #
 
-import math
+#import math
 import wpilib
 from rev import SparkFlex, SparkLowLevel, SparkMax, SparkBase
 #from wpilib import MechanismLigament2d
 #from wpilib.simulation import SingleJointedArmSim
 #from wpilib import SmartDashboard
 from commands2 import Subsystem
-from commands2 import Command
+#from commands2 import Command
 #from wpimath.system.plant import DCMotor
 from Constants import AlgaeSubsystemConstants
 from Configs import Configs
@@ -21,14 +21,28 @@ class AlgaeSubsystem(Subsystem):
         super().__init__()
 
         # Initialize arm SPARK motor and encoder
-        self.arm_motor = SparkFlex(AlgaeSubsystemConstants.kPivotMotorCanId, SparkLowLevel.MotorType.kBrushless)
-        self.arm_motor.configure(Configs.AlgaeSubsystem.armConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
+        self.arm_motor = SparkFlex(
+            AlgaeSubsystemConstants.kPivotMotorCanId,
+            SparkLowLevel.MotorType.kBrushless
+        )
+        self.arm_motor.configure(
+            Configs.AlgaeSubsystem.armConfig,
+            SparkBase.ResetMode.kResetSafeParameters,
+            SparkBase.PersistMode.kPersistParameters
+        )
         self.arm_encoder = self.arm_motor.getEncoder()
         self.arm_controller = self.arm_motor.getClosedLoopController()
 
         # Initialize intake SPARK motor
-        self.intake_motor = SparkMax(AlgaeSubsystemConstants.kIntakeMotorCanId, SparkLowLevel.MotorType.kBrushless)
-        self.intake_motor.configure(Configs.AlgaeSubsystem.intakeConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
+        self.intake_motor = SparkMax(
+            AlgaeSubsystemConstants.kIntakeMotorCanId,
+            SparkLowLevel.MotorType.kBrushless
+        )
+        self.intake_motor.configure(
+            Configs.AlgaeSubsystem.intakeConfig,
+            SparkBase.ResetMode.kResetSafeParameters,
+            SparkBase.PersistMode.kPersistParameters
+        )
 
         # Initialize member variables
         self.stow_when_idle = True
@@ -75,13 +89,16 @@ class AlgaeSubsystem(Subsystem):
 
     def set_intake_position(self, position):
         """Set the arm motor position using closed-loop control."""
-        self.arm_controller.setReference(position, SparkLowLevel.ControlType.kMAXMotionPositionControl)
+        self.arm_controller.setReference(
+            position,
+            SparkLowLevel.ControlType.kMAXMotionPositionControl
+        )
 
     # Commands called in robotcontainer to do things
     def run_intake_command(self):
         """Command to run the intake motor and extend the arm."""
-        self.stow_when_idle = False,
-        self.set_intake_power(AlgaeSubsystemConstants.IntakeSetpoints.kForward),
+        self.stow_when_idle = False
+        self.set_intake_power(AlgaeSubsystemConstants.IntakeSetpoints.kForward)
         self.set_intake_position(AlgaeSubsystemConstants.ArmSetpoints.kDown)
 
     def reverse_intake_command(self):
@@ -106,7 +123,6 @@ class AlgaeSubsystem(Subsystem):
     def periodic(self):
         """Called periodically to update the status and display values."""
         self.zero_on_user_button()
-        self.idle_command()
 
         """
         SmartDashboard.putNumber("Algae/Arm/Position", self.arm_encoder.getPosition())
