@@ -78,6 +78,10 @@ class RobotContainer:
                 lambda: self.m_coralSubsystem.run_intake_command(),
                 self.m_coralSubsystem
             )
+        ).onFalse(
+            RunCommand(
+                lambda: self.m_coralSubsystem.stop_intake_command()
+            )
         )
 
         # Right Bumper -> Run tube intake in reverse
@@ -85,6 +89,10 @@ class RobotContainer:
             RunCommand(
                 lambda: self.m_coralSubsystem.reverse_intake_command(),
                 self.m_coralSubsystem
+            )
+        ).onFalse(
+            RunCommand(
+                lambda: self.m_coralSubsystem.stop_intake_command()
             )
         )
 
@@ -140,10 +148,18 @@ class RobotContainer:
         # Right Trigger -> Run ball intake in reverse, set to stow when idle
         self.m_operatorController.rightTrigger(OIConstants.kTriggerButtonThreshold).whileTrue(
             RunCommand(
-                lambda: self.m_algaeSubsystem.reverse_intake_command(), 
+                lambda: self.m_algaeSubsystem.reverse_intake_command(),
                 self.m_algaeSubsystem
             )
         )
+        
+        self.m_operatorController.leftStick().onTrue(
+            RunCommand(
+                lambda: self.m_algaeSubsystem.stow_command()
+            )
+        )
+
+
     '''
     def getSimulationTotalCurrentDraw(self):
         # For each subsystem with simulation, returns total current draw

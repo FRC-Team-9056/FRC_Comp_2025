@@ -103,9 +103,9 @@ class AlgaeSubsystem(Subsystem):
 
     def reverse_intake_command(self):
         """Command to reverse the intake motor."""
+        self.stow_when_idle = True
         self.set_intake_power(AlgaeSubsystemConstants.IntakeSetpoints.kReverse)
-        self.set_intake_position(AlgaeSubsystemConstants.IntakeSetpoints.kHold)
-        self.stow_command()
+        self.set_intake_position(AlgaeSubsystemConstants.ArmSetpoints.kHold)
 
     def stow_command(self):
         """Command to stow the intake arm."""
