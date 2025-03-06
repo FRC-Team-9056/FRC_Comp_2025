@@ -12,21 +12,21 @@ class CoralSubsystemConstants:
     
     class ElevatorSetpoints:
         kFeederStation = 0
-        kLevel1 = 0
-        kLevel2 = 50
+        kLevel1 = 1
+        kLevel2 = 10
         kLevel3 = 100
-        kLevel4 = 150
+        kLevel4 = 165
 
     class ArmSetpoints:
-        kFeederStation = 33
-        kLevel1 = 0
-        kLevel2 = 2
-        kLevel3 = 2
-        kLevel4 = 19
+        kFeederStation = 28
+        kLevel1 = 120
+        kLevel2 = 130
+        kLevel3 = 120
+        kLevel4 = 105
 
     class IntakeSetpoints:
-        kForward = 0.5
-        kReverse = -0.5
+        kForward = -0.25
+        kReverse = 0.5
 
 class AlgaeSubsystemConstants:
     kIntakeMotorCanId = 5
@@ -34,17 +34,17 @@ class AlgaeSubsystemConstants:
 
     class ArmSetpoints:
         kStow = 0
-        kHold = 11.5
-        kDown = 18.5
+        kHold = 13
+        kDown = 20
 
     class IntakeSetpoints:
         kForward = 0.5
         kReverse = -0.5
-        kHold = 0.25
+        kHold = 0.35
 
 class DriveConstants:
     # Driving Parameters
-    kMaxSpeedMetersPerSecond = 4.8
+    kMaxSpeedMetersPerSecond = 2.8
     kMaxAngularSpeed = 2 * math.pi  # radians per second
 
 

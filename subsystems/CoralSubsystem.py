@@ -26,7 +26,7 @@ class CoralSubsystem(Subsystem):
         kLevel1 = "Level1"
         kLevel2 = "Level2"
         kLevel3 = "Level3"
-        kLevel4 = "Level4"
+        kLevel4 = "Level4" 
   
     def __init__(self):
         super().__init__()
@@ -43,6 +43,7 @@ class CoralSubsystem(Subsystem):
             )
         self.arm_encoder = self.arm_motor.getEncoder()
         self.arm_controller = self.arm_motor.getClosedLoopController()
+        self.arm_encoder.setPosition(0)
         
         self.elevator_motor = SparkFlex(
             CoralSubsystemConstants.kElevatorMotorCanId,

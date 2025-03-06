@@ -135,6 +135,15 @@ class RobotContainer:
             )
         )
 
+        # Y Button -> Elevator/Arm to level 4 position
+        self.m_operatorController.rightStick().onTrue(
+            RunCommand(lambda: self.m_coralSubsystem.set_setpoint_command(
+                CoralSubsystemConstants.ElevatorSetpoints.kLevel4
+                ),
+                self.m_coralSubsystem
+            )
+        )
+
         ### Algae Subsystem Controlls ###
 
         # Left Trigger -> Run ball intake, set to leave out when idle
@@ -255,7 +264,7 @@ class AutonomousCommand:
             SequentialCommandGroup(
                 RunCommand(
                     lambda: self.coral_system.set_setpoint_command(
-                        CoralSubsystemConstants.ElevatorSetpoints.kLevel1
+                        CoralSubsystemConstants.ElevatorSetpoints.kLevel2
                     ),
                     self.coral_system
                 ),

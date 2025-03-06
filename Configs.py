@@ -55,7 +55,8 @@ class Configs:
             Configs.CoralSubsystem.armConfig \
                 .setIdleMode(idleMode=SparkMaxConfig.IdleMode.kCoast) \
                 .smartCurrentLimit(40) \
-                .voltageCompensation(12)
+                .voltageCompensation(12) \
+                .inverted(True)
             Configs.CoralSubsystem.armConfig.closedLoop \
                 .setFeedbackSensor(Configs.CoralSubsystem.armConfig.closedLoop.FeedbackSensor.kPrimaryEncoder) \
                 .pid(0.1,0,0) \
