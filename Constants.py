@@ -35,11 +35,11 @@ class AlgaeSubsystemConstants:
     class ArmSetpoints:
         kStow = 0
         kHold = 13
-        kDown = 18
+        kDown = 20
 
     class IntakeSetpoints:
         kForward = 0.5
-        kReverse = -0.3
+        kReverse = -0.5
         kHold = 0.35
 
 class DriveConstants:

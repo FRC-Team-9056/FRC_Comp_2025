@@ -5,7 +5,7 @@
 #
 
 import math
-from commands2 import RunCommand, WaitCommand, SequentialCommandGroup, SwerveControllerCommand
+from commands2 import RunCommand, StartEndCommand, WaitCommand, SequentialCommandGroup, SwerveControllerCommand, Command, InstantCommand
 from commands2.button import CommandXboxController
 from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator, TrapezoidProfileRadians
 from wpimath.geometry import Pose2d, Rotation2d
@@ -193,35 +193,37 @@ class AutonomousCommand:
         )
         config.setKinematics(DriveConstants.kDriveKinematics)
     
-        #Forward trajectory
-        #forward_trajectory = TrajectoryGenerator.generateTrajectory(
-        #    Pose2d(0, 0, Rotation2d(0)),
-        #    [],
-        #    Pose2d(1, 0, Rotation2d(0)),
-        #    config
-        #)
+        #forward trajectory
+        forward_trajectory = TrajectoryGenerator.generateTrajectory(
+            Pose2d(0, 0, Rotation2d(0)),
+            [],
+            Pose2d(1.25, 0, Rotation2d(math.pi)),
+            config
+        )
 
-        #self.robot_drive.resetOdometry(forward_trajectory.initialPose())
+        self.robot_drive.resetOdometry(forward_trajectory.initialPose())
 
         # Create a PIDController for turning
-        #theta_controller = ProfiledPIDControllerRadians(
-        #    AutoConstants.kPThetaController, 0, 0,
-        #    TrapezoidProfileRadians.Constraints(
-        #        AutoConstants.kMaxAngularSpeedRadiansPerSecond,
-        #        AutoConstants.kMaxAngularAccelerationRadiansPerSecond
-        #    )
-        #)
+        theta_controller = ProfiledPIDControllerRadians(
+            AutoConstants.kPThetaController, 0, 0,
+            TrapezoidProfileRadians.Constraints(
+                AutoConstants.kMaxAngularSpeedRadiansPerSecond,
+                AutoConstants.kMaxAngularAccelerationRadiansPerSecond
+            )
+        )
 
-        #theta_controller.enableContinuousInput(-2 * math.pi, 2 * math.pi)  # Ensure smooth turning
+        theta_controller.enableContinuousInput(-2 * math.pi, 2 * math.pi)  # Ensure smooth turning
     
-
+        back_config = config
+        back_config.setReversed(True)
         #Backward trajectory
         backward_trajectory = TrajectoryGenerator.generateTrajectory(
             Pose2d(0, 0, Rotation2d(0)),  # Start where the previous move ended, but rotated
             [],
             Pose2d(-1, 0, Rotation2d(0)),  # Move backward another 1 meter
-            config
+            back_config
         )
+    
 
         theta_controller = ProfiledPIDControllerRadians(
             AutoConstants.kPThetaController, 0, 0,
@@ -238,15 +240,16 @@ class AutonomousCommand:
         )
 
 
-        #forward_command = SwerveControllerCommand(
-        #    forward_trajectory,
-        #    self.robot_drive.getPose,
-        #    DriveConstants.kDriveKinematics,
-        #    holonomic_controller,
-        #    self.robot_drive.setModuleStates,
-        #    [self.robot_drive]
-        #)
-
+        forward_command = SwerveControllerCommand(
+            forward_trajectory,
+            self.robot_drive.getPose,
+            DriveConstants.kDriveKinematics,
+            holonomic_controller,
+            self.robot_drive.setModuleStates,
+            [self.robot_drive]
+        )
+        
+        
         backward_command = SwerveControllerCommand(
             backward_trajectory,
             self.robot_drive.getPose,
@@ -255,30 +258,28 @@ class AutonomousCommand:
             self.robot_drive.setModuleStates,
             [self.robot_drive]
         )
+                
+        set_elevator_command = StartEndCommand(
+            lambda: self.coral_system.move_to_setpoint(),
+            lambda: self.coral_system.set_intake_power(0),
+            self.coral_system
+        ).withTimeout(4)
 
-         # Wait for 1 second to let the turn finish
-        wait_command = WaitCommand(1)
+        set_intake_reverse_command = StartEndCommand(
+            lambda: self.coral_system.reverse_intake_command(),
+            lambda: self.coral_system.set_intake_power(0),
+            self.coral_system
+        ).withTimeout(2)
+
+        wait = WaitCommand(5)
 
         return SequentialCommandGroup(
             # Drive robot backward
             backward_command,
-            # Stop robot in place
-            RunCommand(lambda: self.robot_drive.setX(), self.robot_drive),
-            # Spit out some coral at level 1
-            SequentialCommandGroup(
-                RunCommand(
-                    lambda: self.coral_system.set_setpoint_command(
-                        CoralSubsystemConstants.ElevatorSetpoints.kLevel2
-                    ),
-                    self.coral_system
-                ),
-                RunCommand(
-                    lambda: self.coral_system.move_to_setpoint(),
-                    self.coral_system
-                ),
-                RunCommand(
-                    lambda: self.coral_system.reverse_intake_command(),
-                    self.coral_system
-                ).withTimeout(4)
-            )
+            InstantCommand(
+                lambda: self.coral_system.set_setpoint_command(
+                    CoralSubsystemConstants.ElevatorSetpoints.kLevel1)
+            ),
+            set_elevator_command,
+            set_intake_reverse_command
         )
