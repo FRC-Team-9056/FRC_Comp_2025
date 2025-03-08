@@ -114,7 +114,7 @@ class Configs:
             Configs.AlgaeSubsystem.intakeConfig \
                 .inverted(True) \
                 .setIdleMode(SparkMaxConfig.IdleMode.kBrake) \
-                .smartCurrentLimit(40)
+                .smartCurrentLimit(30)
 
 # Call initialization functions
 Configs.MAXSwerveModule.initialize()

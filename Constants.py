@@ -26,7 +26,7 @@ class CoralSubsystemConstants:
 
     class IntakeSetpoints:
         kForward = -0.25
-        kReverse = 0.5
+        kReverse = 0.3
 
 class AlgaeSubsystemConstants:
     kIntakeMotorCanId = 5
@@ -35,16 +35,16 @@ class AlgaeSubsystemConstants:
     class ArmSetpoints:
         kStow = 0
         kHold = 13
-        kDown = 20
+        kDown = 18
 
     class IntakeSetpoints:
         kForward = 0.5
-        kReverse = -0.5
+        kReverse = -0.3
         kHold = 0.35
 
 class DriveConstants:
     # Driving Parameters
-    kMaxSpeedMetersPerSecond = 2.8
+    kMaxSpeedMetersPerSecond = 2.6
     kMaxAngularSpeed = 2 * math.pi  # radians per second
 
 
@@ -60,8 +60,7 @@ class DriveConstants:
         Translation2d(-kWheelBase / 2, -kTrackWidth / 2)
     )
 
-
-
+    
     # Angular offsets of the modules relative to the chassis in radians
     kFrontLeftChassisAngularOffset = -math.pi / 2
     kFrontRightChassisAngularOffset = 0

@@ -168,6 +168,11 @@ class RobotContainer:
             )
         )
 
+        self.m_driverController.a().onTrue(
+            RunCommand(
+                lambda: self.m_robotDrive.zeroHeading()
+            )
+        )
 
     '''
     def getSimulationTotalCurrentDraw(self):
@@ -187,34 +192,34 @@ class AutonomousCommand:
             AutoConstants.kMaxAccelerationMetersPerSecondSquared
         )
         config.setKinematics(DriveConstants.kDriveKinematics)
-        
+    
         #Forward trajectory
-        forward_trajectory = TrajectoryGenerator.generateTrajectory(
-            Pose2d(0, 0, Rotation2d(0)),
-            [],
-            Pose2d(1, 0, Rotation2d(0)),
-            config
-        )
+        #forward_trajectory = TrajectoryGenerator.generateTrajectory(
+        #    Pose2d(0, 0, Rotation2d(0)),
+        #    [],
+        #    Pose2d(1, 0, Rotation2d(0)),
+        #    config
+        #)
 
-        self.robot_drive.resetOdometry(forward_trajectory.initialPose())
+        #self.robot_drive.resetOdometry(forward_trajectory.initialPose())
 
         # Create a PIDController for turning
-        theta_controller = ProfiledPIDControllerRadians(
-            AutoConstants.kPThetaController, 0, 0,
-            TrapezoidProfileRadians.Constraints(
-                AutoConstants.kMaxAngularSpeedRadiansPerSecond,
-                AutoConstants.kMaxAngularAccelerationRadiansPerSecond
-            )
-        )
+        #theta_controller = ProfiledPIDControllerRadians(
+        #    AutoConstants.kPThetaController, 0, 0,
+        #    TrapezoidProfileRadians.Constraints(
+        #        AutoConstants.kMaxAngularSpeedRadiansPerSecond,
+        #        AutoConstants.kMaxAngularAccelerationRadiansPerSecond
+        #    )
+        #)
 
-        theta_controller.enableContinuousInput(-2 * math.pi, 2 * math.pi)  # Ensure smooth turning
-
+        #theta_controller.enableContinuousInput(-2 * math.pi, 2 * math.pi)  # Ensure smooth turning
+    
 
         #Backward trajectory
         backward_trajectory = TrajectoryGenerator.generateTrajectory(
-            Pose2d(1, 0, Rotation2d(0)),  # Start where the previous move ended, but rotated
+            Pose2d(0, 0, Rotation2d(0)),  # Start where the previous move ended, but rotated
             [],
-            Pose2d(0, 0, Rotation2d(math.pi)),  # Move backward another 1 meter
+            Pose2d(-1, 0, Rotation2d(0)),  # Move backward another 1 meter
             config
         )
 
@@ -233,14 +238,14 @@ class AutonomousCommand:
         )
 
 
-        forward_command = SwerveControllerCommand(
-            forward_trajectory,
-            self.robot_drive.getPose,
-            DriveConstants.kDriveKinematics,
-            holonomic_controller,
-            self.robot_drive.setModuleStates,
-            [self.robot_drive]
-        )
+        #forward_command = SwerveControllerCommand(
+        #    forward_trajectory,
+        #    self.robot_drive.getPose,
+        #    DriveConstants.kDriveKinematics,
+        #    holonomic_controller,
+        #    self.robot_drive.setModuleStates,
+        #    [self.robot_drive]
+        #)
 
         backward_command = SwerveControllerCommand(
             backward_trajectory,
@@ -248,16 +253,15 @@ class AutonomousCommand:
             DriveConstants.kDriveKinematics,
             holonomic_controller,
             self.robot_drive.setModuleStates,
-            [self.robot_drive],
-            Rotation2d(math.pi)
+            [self.robot_drive]
         )
 
          # Wait for 1 second to let the turn finish
         wait_command = WaitCommand(1)
 
         return SequentialCommandGroup(
-            # Drive robot forward
-            forward_command,
+            # Drive robot backward
+            backward_command,
             # Stop robot in place
             RunCommand(lambda: self.robot_drive.setX(), self.robot_drive),
             # Spit out some coral at level 1
@@ -275,6 +279,6 @@ class AutonomousCommand:
                 RunCommand(
                     lambda: self.coral_system.reverse_intake_command(),
                     self.coral_system
-                ).withTimeout(2)
+                ).withTimeout(4)
             )
         )
