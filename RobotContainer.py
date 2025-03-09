@@ -168,12 +168,6 @@ class RobotContainer:
             )
         )
 
-        self.m_driverController.a().onTrue(
-            RunCommand(
-                lambda: self.m_robotDrive.zeroHeading()
-            )
-        )
-
     '''
     def getSimulationTotalCurrentDraw(self):
         # For each subsystem with simulation, returns total current draw
@@ -220,7 +214,7 @@ class AutonomousCommand:
         backward_trajectory = TrajectoryGenerator.generateTrajectory(
             Pose2d(0, 0, Rotation2d(0)),  # Start where the previous move ended, but rotated
             [],
-            Pose2d(-1, 0, Rotation2d(0)),  # Move backward another 1 meter
+            Pose2d(-2.2, 0, Rotation2d(0)),  # Move backward another 1 meter
             back_config
         )
     
@@ -278,7 +272,7 @@ class AutonomousCommand:
             backward_command,
             InstantCommand(
                 lambda: self.coral_system.set_setpoint_command(
-                    CoralSubsystemConstants.ElevatorSetpoints.kLevel1)
+                    CoralSubsystemConstants.ElevatorSetpoints.kLevel3)
             ),
             set_elevator_command,
             set_intake_reverse_command
