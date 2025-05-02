@@ -15,6 +15,8 @@ from Constants import OIConstants, AutoConstants, DriveConstants, CoralSubsystem
 from subsystems.DriveSubsystem import DriveSubsystem
 from subsystems.AlgaeSubsystem import AlgaeSubsystem
 from subsystems.CoralSubsystem import CoralSubsystem
+from subsystems.LimelightSubsystem import LimelightSubsystem, AutoAlignToTag
+from subsystems.MAXSwerveModule import MAXSwerveModule
 
 class RobotContainer:
     """
@@ -26,6 +28,8 @@ class RobotContainer:
         self.m_robotDrive = DriveSubsystem()
         self.m_coralSubsystem = CoralSubsystem()
         self.m_algaeSubsystem = AlgaeSubsystem()
+        self.m_limelightSubsystem = LimelightSubsystem()
+        
 
         self.m_robotDrive.zeroHeading()
 
@@ -70,6 +74,13 @@ class RobotContainer:
                 self.m_robotDrive
             )
         )
+
+        ###Limelight commands###
+        #left Bumper -> autoalign#
+        self.m_driverController.leftBumper().whileTrue(
+            AutoAlignToTag(self.m_robotDrive, self.m_limelightSubsystem)
+        )
+
 
         ### Coral Subystem Commands ### 
          # Left Bumper -> Run tube intake
@@ -277,3 +288,39 @@ class AutonomousCommand:
             set_elevator_command,
             set_intake_reverse_command
         )
+
+class AutoAlignToTag(Command):
+    def __init__(self, drivetrain, limelight):
+        super().__init__()
+        self.drivetrain = MAXSwerveModule
+        self.limelight = LimelightSubsystem
+        self.kP = 0.03  # Tune this value!
+        self.min_cmd = 0.05  # Minimum speed to overcome static friction
+
+        self.setName("AutoAlignToTag")
+        self.addRequirements(drivetrain)
+
+    def initialize(self):
+        print("Auto-align starting...")
+
+    def execute(self):
+        if self.limelight.has_target():
+            tx = self.limelight.get_tx()
+            turn_cmd = self.kP * tx
+
+            # Add minimum command to make sure it turns
+            if abs(turn_cmd) < self.min_cmd:
+                turn_cmd = self.min_cmd * (1 if tx > 0 else -1)
+
+            self.drivetrain.set_desired_state(0, -turn_cmd)
+        else:
+            self.drivetrain.set_desired_state(0, 0)  # Stop if no target
+
+    def isFinished(self):
+        if not self.limelight.has_target():
+            return True
+        return abs(self.limelight.get_tx()) < 1.0  # Degrees tolerance
+
+    def end(self, interrupted):
+        self.drivetrain.set_desired_state(0, 0)
+        print("Auto-align finished.")
