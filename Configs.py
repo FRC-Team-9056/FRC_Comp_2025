@@ -55,13 +55,17 @@ class Configs:
             Configs.CoralSubsystem.armConfig \
                 .setIdleMode(idleMode=SparkMaxConfig.IdleMode.kBrake) \
                 .smartCurrentLimit(40) \
-                .voltageCompensation(12)
+                .voltageCompensation(12) \
+                .inverted(True)
             Configs.CoralSubsystem.armConfig.closedLoop \
                 .setFeedbackSensor(Configs.CoralSubsystem.armConfig.closedLoop.FeedbackSensor.kPrimaryEncoder) \
                 .pid(0.1,0,0) \
                 .outputRange(-1, 1) \
             #!!!!!!!!The Numbers Might need to get changed!!!!!!!! -----Alex
-            Configs.CoralSubsystem.armConfig.closedLoop.maxMotion.maxVelocity(2000).maxAcceleration(10000).allowedClosedLoopError(0.25)
+            Configs.CoralSubsystem.armConfig.closedLoop.maxMotion \
+                .maxVelocity(2000) \
+                .maxAcceleration(10000) \
+                .allowedClosedLoopError(0.25)
 
             # Configure elevator motor
             Configs.CoralSubsystem.elevatorConfig \
@@ -92,17 +96,22 @@ class Configs:
             # Configure arm motor
             Configs.AlgaeSubsystem.armConfig \
                 .smartCurrentLimit(40) \
-                .setIdleMode(SparkMaxConfig.IdleMode.kBrake)
-            #Configs.AlgaeSubsystem.armConfig.closedLoop \
-            #    .setFeedbackSensor(Configs.AlgaeSubsystem.armConfig.closedLoop.FeedbackSensor.kPrimaryEncoder) \
-            #    .pid(0.1,0,0) \
-            #    .outputRange(-0.5, 0.5)
+                .setIdleMode(SparkFlexConfig.IdleMode.kBrake) \
+                .inverted(True)
+            Configs.AlgaeSubsystem.armConfig.closedLoop \
+                .setFeedbackSensor(Configs.AlgaeSubsystem.armConfig.closedLoop.FeedbackSensor.kPrimaryEncoder) \
+                .pid(0.1,0,0) \
+                .outputRange(-0.5, 0.5)
+            Configs.AlgaeSubsystem.armConfig.closedLoop.maxMotion \
+                .maxVelocity(2000) \
+                .maxAcceleration(10000) \
+                .allowedClosedLoopError(0.25)
 
             # Configure intake motor
             Configs.AlgaeSubsystem.intakeConfig \
                 .inverted(True) \
-                .setIdleMode(SparkFlexConfig.IdleMode.kBrake) \
-                .smartCurrentLimit(40)
+                .setIdleMode(SparkMaxConfig.IdleMode.kBrake) \
+                .smartCurrentLimit(39)
 
 # Call initialization functions
 Configs.MAXSwerveModule.initialize()

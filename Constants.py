@@ -11,40 +11,40 @@ class CoralSubsystemConstants:
     kIntakeMotorCanId = 2
     
     class ElevatorSetpoints:
-        kFeederStation = 0.0
-        kLevel1 = 5.0
-        kLevel2 = 15.0
-        kLevel3 = 25.0
-        kLevel4 = 35.0
+        kFeederStation = 0
+        kLevel1 = 1
+        kLevel2 = 20
+        kLevel3 = 115
+        kLevel4 = 165
 
     class ArmSetpoints:
-        kFeederStation = 0.0
-        kLevel1 = 10.0
-        kLevel2 = 20.0
-        kLevel3 = 30.0
-        kLevel4 = 40.0
+        kFeederStation = 27
+        kLevel1 = 130
+        kLevel2 = 127
+        kLevel3 = 128
+        kLevel4 = 105
 
     class IntakeSetpoints:
-        kForward = 0.9
-        kReverse = -0.5
+        kForward = -0.4
+        kReverse = 0.15
 
 class AlgaeSubsystemConstants:
     kIntakeMotorCanId = 5
     kPivotMotorCanId = 6
 
     class ArmSetpoints:
-        kStow = 18.5
-        kHold = 11.5
-        kDown = 0
+        kStow = 0
+        kHold = 12.5
+        kDown = 19.5
 
     class IntakeSetpoints:
         kForward = 0.5
-        kReverse = -0.5
-        kHold = 0.25
+        kReverse = -0.25
+        kHold = 0.3
 
 class DriveConstants:
     # Driving Parameters
-    kMaxSpeedMetersPerSecond = 4.8
+    kMaxSpeedMetersPerSecond = 2.7
     kMaxAngularSpeed = 2 * math.pi  # radians per second
 
 
@@ -60,8 +60,7 @@ class DriveConstants:
         Translation2d(-kWheelBase / 2, -kTrackWidth / 2)
     )
 
-
-
+    
     # Angular offsets of the modules relative to the chassis in radians
     kFrontLeftChassisAngularOffset = -math.pi / 2
     kFrontRightChassisAngularOffset = 0
@@ -103,7 +102,7 @@ class ModuleConstants:
 
 class OIConstants:
     kDriverControllerPort = 0
-    kSdriverControllerPort = 1
+    kOperatorControllerPort = 1
     kDriveDeadband = 0.02
     kTriggerButtonThreshold = 0.2
 
