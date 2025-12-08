@@ -39,6 +39,9 @@ class RobotContainer:
         self.m_driverController = CommandXboxController(OIConstants.kDriverControllerPort)
         self.m_operatorController= CommandXboxController(OIConstants.kOperatorControllerPort)
 
+        #The second driver's controller
+        self.m_sdriverController = XboxController(OIConstants.kSdriverControllerPort)
+
         # Configure the button bindings
         self.configureButtonBindings()
 
@@ -116,6 +119,11 @@ class RobotContainer:
                 self.m_coralSubsystem
             )
         )
+
+        # B Button -> Elevator/Arm to human player position, set ball intake to stow when idle
+        #JoystickButton(self.m_sdriverController, XboxController.Button.kB).onTrue(
+        #    RunCommand(lambda: self.m_coralSubsystem.set_setpoint_command(Constants.CoralSubsystemConstants.ElevatorSetpoints.kFeederStation), self.m_coralSubsystem)
+        #)
 
         # A Button -> Elevator/Arm to level 2 position
         self.m_operatorController.a().onTrue(

@@ -53,7 +53,7 @@ class Configs:
         def initialize():
             # Configure arm motor
             Configs.CoralSubsystem.armConfig \
-                .setIdleMode(idleMode=SparkMaxConfig.IdleMode.kCoast) \
+                .setIdleMode(idleMode=SparkMaxConfig.IdleMode.kBrake) \
                 .smartCurrentLimit(40) \
                 .voltageCompensation(12) \
                 .inverted(True)
@@ -72,13 +72,10 @@ class Configs:
                 .setIdleMode(idleMode=SparkFlexConfig.IdleMode.kCoast) \
                 .smartCurrentLimit(50) \
                 .voltageCompensation(12)
-            Configs.CoralSubsystem.elevatorConfig.limitSwitch \
-                .reverseLimitSwitchEnabled(True) \
-                .reverseLimitSwitchType(Configs.CoralSubsystem.elevatorConfig.limitSwitch.Type.kNormallyOpen)
+            Configs.CoralSubsystem.elevatorConfig.limitSwitch.reverseLimitSwitchEnabled(True)
             Configs.CoralSubsystem.elevatorConfig.closedLoop \
                 .outputRange(-1, 1) \
-                .pid(0.1,0,0) \
-                .setFeedbackSensor(Configs.CoralSubsystem.armConfig.closedLoop.FeedbackSensor.kPrimaryEncoder)
+                .setFeedbackSensor(Configs.CoralSubsystem.elevatorConfig.closedLoop.FeedbackSensor.kNoSensor)
             Configs.CoralSubsystem.elevatorConfig.closedLoop.maxMotion \
                 .maxVelocity(4200) \
                 .maxAcceleration(6000) \
@@ -91,8 +88,8 @@ class Configs:
                 .smartCurrentLimit(40)
 
     class AlgaeSubsystem:
-        intakeConfig = SparkMaxConfig()
-        armConfig = SparkFlexConfig()
+        intakeConfig = SparkFlexConfig()
+        armConfig = SparkMaxConfig()
 
         @staticmethod
         def initialize():
