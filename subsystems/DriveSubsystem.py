@@ -160,7 +160,7 @@ class DriveSubsystem(Subsystem):
         self.m_rearRight.reset_encoders()
 
     def zeroHeading(self):
-        self.m_gyro.reset()
+        self.m_gyro.zeroYaw()
 
     def getHeading(self):
         return Rotation2d.fromDegrees(self.m_gyro.getAngle())
